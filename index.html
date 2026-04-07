@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Tcorp. · IA</title>
+<title>Chum-ia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
@@ -458,7 +458,7 @@ body::after {
               <div class="setting-row-sub">Utilisé pour toutes les nouvelles conversations</div>
             </div>
             <select class="setting-select" id="defaultModel">
-              <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+              <option value="llama-3.3-70b-versatile">Llama 3.3 70B (le meilleur)</option>
               <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
               <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
               <option value="gemma2-9b-it">Gemma 2 9B</option>
@@ -486,7 +486,7 @@ body::after {
           </div>
         </div>
 
-        <button class="save-settings-btn" onclick="saveSettings()">✓ Sauvegarder les paramètres</button>
+        <button class="save-settings-btn" onclick="saveSettings()">✓ Engistrer les paramètres</button>
       </div>
     </div>
 
@@ -494,11 +494,11 @@ body::after {
     <div class="panel" id="panel-about">
       <div class="about-panel">
         <h2>À pro<span>pos</span></h2>
-        <p>Groq Chat est une interface IA ultra-rapide utilisant les LPU™ (Language Processing Units) de Groq pour une inférence en temps quasi-réel.</p>
+        <p>Chum ia est une interface IA ultra-rapide utilisant les LPU™ (Language Processing Units) de Chum.ia pour une inférence en temps quasi-réel.</p>
 
         <div class="about-card">
           <div class="about-card-title">Version</div>
-          <div class="about-card-val">Groq Chat v2.0 — avec sidebar</div>
+          <div class="about-card-val">Chum ia v2.0 — avec sidebar</div>
         </div>
         <div class="about-card">
           <div class="about-card-title">API</div>
@@ -510,7 +510,7 @@ body::after {
         </div>
         <div class="about-card">
           <div class="about-card-title">Confidentialité</div>
-          <div class="about-card-val">Vos conversations sont stockées uniquement dans votre navigateur (localStorage). Rien n'est envoyé à des serveurs tiers sauf l'API Groq.</div>
+          <div class="about-card-val">Vos conversations sont stockées uniquement dans votre navigateur (localStorage). Rien n'est envoyé à des serveurs tiers sauf l'API chum.ia.</div>
         </div>
       </div>
     </div>
@@ -715,7 +715,7 @@ function renderMsg(role, text) {
   d.innerHTML = `
     <div class="av ${isUser ? 'u' : 'a'}">${isUser ? '◎' : 'G'}</div>
     <div class="bubble">
-      <div class="bwho">${isUser ? 'Vous' : 'Groq'}</div>
+      <div class="bwho">${isUser ? 'Vous' : 'Chum ia'}</div>
       <div class="btext">${esc(text)}</div>
     </div>`;
   msgEl.appendChild(d);
