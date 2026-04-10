@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CHUM IA</title>
+<title>Chum IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
@@ -15,7 +15,7 @@
   --s2:      #161724;
   --s3:      #1c1e2e;
   --border:  #1f2135;
-  --green:   #ee0d89;
+  --green:   #00e5a0;
   --green2:  #00ffb3;
   --blue:    #4f7cff;
   --red:     #ff4f4f;
@@ -317,7 +317,7 @@ body::after {
 
 .save-settings-btn {
   background: linear-gradient(135deg, var(--green) 0%, var(--green2) 100%);
-  color: #fdc407; border: none; border-radius: 9px;
+  color: #09090f; border: none; border-radius: 9px;
   padding: 10px 20px; font-family: var(--mono); font-size: 12px;
   font-weight: 600; cursor: pointer; transition: opacity .2s; margin-top: 8px;
 }
@@ -369,6 +369,127 @@ body::after {
 .img-spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .img-skeleton-txt { font-size: 11px; color: var(--muted); }
+
+/* ── Input toolbar ── */
+.input-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 4px 2px;
+}
+.toolbar-left { display: flex; align-items: center; gap: 4px; }
+.toolbar-right { display: flex; align-items: center; gap: 6px; }
+
+.tb-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: 1px solid var(--border);
+  border-radius: 100px; padding: 5px 11px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.tb-btn:hover { border-color: var(--green); color: var(--text); background: rgba(0,229,160,.05); }
+.tb-btn.active { border-color: var(--green); color: var(--green); background: rgba(0,229,160,.08); }
+.tb-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+.tb-icon-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px;
+  background: none; border: 1px solid var(--border);
+  border-radius: 8px; color: var(--muted);
+  cursor: pointer; transition: all .15s;
+}
+.tb-icon-btn:hover { border-color: var(--green); color: var(--text); background: rgba(0,229,160,.05); }
+.tb-icon-btn svg { width: 14px; height: 14px; }
+
+/* ── File preview strip ── */
+.file-strip {
+  display: none; flex-wrap: wrap; gap: 6px;
+  padding: 8px 4px 4px;
+}
+.file-strip.show { display: flex; }
+
+.file-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px;
+  font-size: 11.5px; color: var(--text); max-width: 180px;
+}
+.file-chip-icon { font-size: 14px; flex-shrink: 0; }
+.file-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.file-chip-size { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.file-chip-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 1px; border-radius: 4px;
+  transition: color .15s; display: flex; flex-shrink: 0;
+}
+.file-chip-del:hover { color: var(--red); }
+.file-chip-del svg { width: 11px; height: 11px; }
+
+/* ── Tools dropdown ── */
+.tools-menu {
+  position: absolute; bottom: 100%; left: 0;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 6px;
+  min-width: 220px; margin-bottom: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  z-index: 100; display: none;
+  animation: rise .15s ease;
+}
+.tools-menu.show { display: block; }
+
+.tool-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px; border-radius: 8px;
+  cursor: pointer; transition: background .15s;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: var(--mono);
+}
+.tool-item:hover { background: var(--s3); }
+.tool-item.enabled { background: rgba(0,229,160,.07); }
+.tool-item-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.tool-item-info { flex: 1; }
+.tool-item-name { font-size: 12.5px; color: var(--text); }
+.tool-item-desc { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+.tool-check {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1.5px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.tool-item.enabled .tool-check {
+  background: var(--green); border-color: var(--green); color: #09090f;
+}
+.tool-check svg { width: 9px; height: 9px; display: none; }
+.tool-item.enabled .tool-check svg { display: block; }
+
+.tools-wrapper { position: relative; }
+
+/* ── Add menu ── */
+.add-menu {
+  position: absolute; bottom: 100%; left: 0;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 6px;
+  min-width: 200px; margin-bottom: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  z-index: 100; display: none;
+  animation: rise .15s ease;
+}
+.add-menu.show { display: block; }
+.add-menu-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px; border-radius: 8px;
+  cursor: pointer; transition: background .15s;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: var(--mono); font-size: 12px; color: var(--text);
+}
+.add-menu-item:hover { background: var(--s3); }
+.add-menu-item-icon {
+  width: 28px; height: 28px; border-radius: 7px; background: var(--s3);
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+}
+.add-wrapper { position: relative; }
 </style>
 </head>
 <body>
@@ -379,8 +500,8 @@ body::after {
 
     <div class="sb-header">
       <div class="sb-logo">
-        <div class="sb-logo-mark">C</div>
-        <div class="sb-logo-text">Chum <span>ia</span></div>
+        <div class="sb-logo-mark">G</div>
+        <div class="sb-logo-text">Chum <span>IA</span></div>
       </div>
       <button class="toggle-btn" onclick="toggleSidebar()" title="Réduire">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -443,7 +564,10 @@ body::after {
         <select id="modelSel" class="model-select">
           <option value="llama-3.3-70b-versatile">Llama 3.3 70B — Versatile</option>
           <option value="llama-3.1-8b-instant">Llama 3.1 8B — Instant</option>
-        
+          <option value="llama3-70b-8192">Llama 3 70B</option>
+          <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+          <option value="gemma2-9b-it">Gemma 2 9B</option>
+          <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B</option>
         </select>
       </div>
       <div class="speed-badge"><div class="speed-dot"></div>LPU · ~500 tok/s</div>
@@ -453,9 +577,9 @@ body::after {
     <div class="panel active" id="panel-chat">
       <div class="messages" id="messages">
         <div class="welcome" id="welcome">
-          <div class="welcome-icon">C</div>
+          <div class="welcome-icon">G</div>
           <h2>Bonjour, je suis <span>Chum IA</span></h2>
-          <p>Inférence ultra-rapide propulsée par LPU™.</p>
+          <p>Votre assistant IA personnel, propulsé par Groq.</p>
           <div class="chips">
             <button class="chip" onclick="suggest(this)">C'est quoi un LPU ?</button>
             <button class="chip" onclick="suggest(this)">Écris du code Python</button>
@@ -466,6 +590,8 @@ body::after {
       </div>
       <div class="input-area">
         <div class="err" id="errBox"></div>
+        <!-- File preview strip -->
+        <div class="file-strip" id="fileStrip"></div>
         <div class="input-row">
           <textarea id="userInput" rows="1" placeholder="Écrivez votre message…"></textarea>
           <button class="send-btn" id="sendBtn" onclick="send()">
@@ -475,10 +601,82 @@ body::after {
             </svg>
           </button>
         </div>
-        <div class="foot-row">
-          <span class="hint">Entrée pour envoyer · Maj+Entrée = nouvelle ligne</span>
-          <button class="clr-btn" onclick="clearChat()">🗑 Effacer</button>
+        <!-- Toolbar -->
+        <div class="input-toolbar">
+          <div class="toolbar-left">
+            <!-- + Add button -->
+            <div class="add-wrapper">
+              <div class="add-menu" id="addMenu">
+                <button class="add-menu-item" onclick="triggerFileUpload('all')">
+                  <div class="add-menu-item-icon">📎</div>
+                  <div><div style="font-weight:500">Joindre un fichier</div><div style="font-size:10.5px;color:var(--muted)">PDF, Word, TXT…</div></div>
+                </button>
+                <button class="add-menu-item" onclick="triggerFileUpload('image/*')">
+                  <div class="add-menu-item-icon">🖼️</div>
+                  <div><div style="font-weight:500">Joindre une image</div><div style="font-size:10.5px;color:var(--muted)">JPG, PNG, GIF…</div></div>
+                </button>
+                <button class="add-menu-item" onclick="showPanel('image'); closeMenus()">
+                  <div class="add-menu-item-icon">✨</div>
+                  <div><div style="font-weight:500">Générer une image</div><div style="font-size:10.5px;color:var(--muted)">via Pollinations.ai</div></div>
+                </button>
+              </div>
+              <button class="tb-icon-btn" id="addBtn" onclick="toggleMenu('addMenu')" title="Ajouter">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </button>
+            </div>
+            <!-- Tools button -->
+            <div class="tools-wrapper">
+              <div class="tools-menu" id="toolsMenu">
+                <button class="tool-item" id="tool-web" onclick="toggleTool('web')">
+                  <div class="tool-item-icon" style="background:rgba(79,124,255,.15)">🌐</div>
+                  <div class="tool-item-info">
+                    <div class="tool-item-name">Recherche web</div>
+                    <div class="tool-item-desc">Chum IA cherche sur internet</div>
+                  </div>
+                  <div class="tool-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                </button>
+                <button class="tool-item" id="tool-image" onclick="toggleTool('image')">
+                  <div class="tool-item-icon" style="background:rgba(0,229,160,.15)">🖼️</div>
+                  <div class="tool-item-info">
+                    <div class="tool-item-name">Génération d'image</div>
+                    <div class="tool-item-desc">Pollinations.ai intégré</div>
+                  </div>
+                  <div class="tool-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                </button>
+                <button class="tool-item" id="tool-code" onclick="toggleTool('code')">
+                  <div class="tool-item-icon" style="background:rgba(255,200,79,.15)">💻</div>
+                  <div class="tool-item-info">
+                    <div class="tool-item-name">Mode code</div>
+                    <div class="tool-item-desc">Réponses formatées avec coloration</div>
+                  </div>
+                  <div class="tool-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                </button>
+                <button class="tool-item" id="tool-translate" onclick="toggleTool('translate')">
+                  <div class="tool-item-icon" style="background:rgba(255,79,200,.15)">🌍</div>
+                  <div class="tool-item-info">
+                    <div class="tool-item-name">Traduction</div>
+                    <div class="tool-item-desc">Traduit automatiquement les réponses</div>
+                  </div>
+                  <div class="tool-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                </button>
+              </div>
+              <button class="tb-btn" id="toolsBtn" onclick="toggleMenu('toolsMenu')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+                Outils <span id="toolsCount" style="display:none;background:var(--green);color:#09090f;border-radius:100px;padding:1px 6px;font-size:9px;font-weight:700"></span>
+              </button>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <span class="hint">Entrée · Maj+Entrée = ↵</span>
+            <button class="clr-btn" onclick="clearChat()">🗑</button>
+          </div>
         </div>
+        <!-- Hidden file input -->
+        <input type="file" id="fileInput" style="display:none" multiple onchange="handleFiles(this)" />
       </div>
     </div>
 
@@ -497,7 +695,9 @@ body::after {
             <select class="setting-select" id="defaultModel">
               <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
               <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
-          
+              <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+              <option value="gemma2-9b-it">Gemma 2 9B</option>
+              <option value="deepseek-r1-distill-llama-70b">DeepSeek R1</option>
             </select>
           </div>
         </div>
@@ -529,7 +729,7 @@ body::after {
     <!-- ── Panel IMAGES ── -->
     <div class="panel" id="panel-image">
       <div class="image-panel">
-        <h2>Génération d'<span>Images</span> <small style="font-size:11px;color:var(--muted);font-family:var(--mono);font-weight:400">via Pollinations.ai · 100% gratuit (il est possible qu'il y ait un disfonctionnement de la génération)</small></h2>
+        <h2>Génération d'<span>Images</span> <small style="font-size:11px;color:var(--muted);font-family:var(--mono);font-weight:400">via Pollinations.ai · 100% gratuit</small></h2>
 
         <div class="img-options">
           <span class="img-opt-lbl">Taille</span>
@@ -592,7 +792,7 @@ body::after {
 
         <div class="about-card">
           <div class="about-card-title">Version</div>
-          <div class="about-card-val">Chum IA  v2.0 — avec sidebar</div>
+          <div class="about-card-val">Chum IA v1.0</div>
         </div>
         <div class="about-card">
           <div class="about-card-title">API</div>
@@ -600,7 +800,7 @@ body::after {
         </div>
         <div class="about-card">
           <div class="about-card-title">Modèles disponibles</div>
-          <div class="about-card-val">Llama 3.3 70B · Llama 3.1 8B </div>
+          <div class="about-card-val">Llama 3.3 70B · Llama 3.1 8B · Mixtral 8x7B · Gemma 2 9B · DeepSeek R1 70B</div>
         </div>
         <div class="about-card">
           <div class="about-card-title">Confidentialité</div>
@@ -809,7 +1009,7 @@ function renderMsg(role, text) {
   d.innerHTML = `
     <div class="av ${isUser ? 'u' : 'a'}">${isUser ? '◎' : 'G'}</div>
     <div class="bubble">
-      <div class="bwho">${isUser ? 'Vous' : 'Groq'}</div>
+      <div class="bwho">${isUser ? 'Vous' : 'Chum'}</div>
       <div class="btext">${esc(text)}</div>
     </div>`;
   msgEl.appendChild(d);
@@ -819,7 +1019,7 @@ function renderMsg(role, text) {
 function showTyping() {
   const d = document.createElement('div');
   d.className = 'msg ai'; d.id = 'typ';
-  d.innerHTML = `<div class="av a">G</div><div class="bubble"><div class="bwho">Groq</div><div class="dots"><span></span><span></span><span></span></div></div>`;
+  d.innerHTML = `<div class="av a">G</div><div class="bubble"><div class="bwho">Chum</div><div class="dots"><span></span><span></span><span></span></div></div>`;
   msgEl.appendChild(d); scroll();
 }
 function hideTyping() { document.getElementById('typ')?.remove(); }
@@ -927,6 +1127,158 @@ function openFull(url) {
 document.getElementById('imgPrompt').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateImage(); }
 });
+
+
+// ── Toolbar & Tools ────────────────────────────────────
+const enabledTools = new Set();
+const attachedFiles = [];
+
+function toggleMenu(id) {
+  const menu = document.getElementById(id);
+  const isOpen = menu.classList.contains('show');
+  closeMenus();
+  if (!isOpen) menu.classList.add('show');
+}
+
+function closeMenus() {
+  document.querySelectorAll('.tools-menu, .add-menu').forEach(m => m.classList.remove('show'));
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.tools-wrapper') && !e.target.closest('.add-wrapper')) closeMenus();
+});
+
+function toggleTool(name) {
+  const btn = document.getElementById('tool-' + name);
+  if (enabledTools.has(name)) {
+    enabledTools.delete(name);
+    btn.classList.remove('enabled');
+  } else {
+    enabledTools.add(name);
+    btn.classList.add('enabled');
+  }
+  // Update tools button badge
+  const count = enabledTools.size;
+  const badge = document.getElementById('toolsCount');
+  const toolsBtn = document.getElementById('toolsBtn');
+  if (count > 0) {
+    badge.style.display = 'inline';
+    badge.textContent = count;
+    toolsBtn.classList.add('active');
+  } else {
+    badge.style.display = 'none';
+    toolsBtn.classList.remove('active');
+  }
+  // Auto-enable image tool → show note
+  if (name === 'image' && enabledTools.has('image')) {
+    const inp = document.getElementById('userInput');
+    inp.placeholder = 'Décrivez une image à générer ou posez une question…';
+  } else if (name === 'image') {
+    document.getElementById('userInput').placeholder = 'Écrivez votre message…';
+  }
+}
+
+// ── File attach ────────────────────────────────────────
+function triggerFileUpload(accept) {
+  const fi = document.getElementById('fileInput');
+  fi.accept = accept === 'all' ? '' : accept;
+  fi.click();
+  closeMenus();
+}
+
+function handleFiles(input) {
+  Array.from(input.files).forEach(file => {
+    attachedFiles.push(file);
+    addFileChip(file);
+  });
+  input.value = '';
+}
+
+function addFileChip(file) {
+  const strip = document.getElementById('fileStrip');
+  strip.classList.add('show');
+  const ext = file.name.split('.').pop().toLowerCase();
+  const icon = ['jpg','jpeg','png','gif','webp'].includes(ext) ? '🖼️'
+             : ['pdf'].includes(ext) ? '📄'
+             : ['py','js','ts','html','css','json'].includes(ext) ? '💻'
+             : '📎';
+  const size = file.size < 1024 ? file.size + ' o'
+             : file.size < 1048576 ? (file.size/1024).toFixed(1) + ' Ko'
+             : (file.size/1048576).toFixed(1) + ' Mo';
+  const chip = document.createElement('div');
+  chip.className = 'file-chip';
+  chip.dataset.name = file.name;
+  chip.innerHTML = `
+    <span class="file-chip-icon">${icon}</span>
+    <span class="file-chip-name">${esc(file.name)}</span>
+    <span class="file-chip-size">${size}</span>
+    <button class="file-chip-del" onclick="removeFile('${esc(file.name)}', this.closest('.file-chip'))">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  strip.appendChild(chip);
+}
+
+function removeFile(name, chip) {
+  const idx = attachedFiles.findIndex(f => f.name === name);
+  if (idx > -1) attachedFiles.splice(idx, 1);
+  chip.remove();
+  if (attachedFiles.length === 0) document.getElementById('fileStrip').classList.remove('show');
+}
+
+// ── Override send to handle tools ─────────────────────
+const _origSend = send;
+window.send = async function() {
+  const text = document.getElementById('userInput').value.trim();
+  if (!text && attachedFiles.length === 0) return;
+
+  // Image generation tool
+  if (enabledTools.has('image') && text) {
+    // Inject the prompt into the image panel and generate
+    document.getElementById('imgPrompt').value = text;
+    document.getElementById('userInput').value = '';
+    document.getElementById('userInput').style.height = 'auto';
+    showPanel('image');
+    generateImage();
+    return;
+  }
+
+  // Build extra context from files (text files read)
+  let fileContext = '';
+  if (attachedFiles.length > 0) {
+    for (const file of attachedFiles) {
+      if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+        const txt = await file.text().catch(() => '');
+        if (txt) fileContext += `\n\n[Fichier: ${file.name}]\n${txt.slice(0, 4000)}`;
+      }
+    }
+    // Clear files after send
+    attachedFiles.length = 0;
+    document.getElementById('fileStrip').innerHTML = '';
+    document.getElementById('fileStrip').classList.remove('show');
+  }
+
+  // Add tool instructions to system prompt
+  let extraSys = '';
+  if (enabledTools.has('web'))       extraSys += " Tu peux mentionner que tu n'as pas accès au web en temps réel mais propose des pistes de recherche.";
+  if (enabledTools.has('code'))      extraSys += ' Formate tout code dans des blocs markdown avec la syntaxe appropriée.';
+  if (enabledTools.has('translate')) extraSys += ' Si le message est en français, traduis aussi ta réponse en anglais à la fin.';
+
+  // Patch system prompt temporarily
+  const sp = document.getElementById('systemPrompt');
+  const origSys = sp ? sp.value : '';
+  if (sp && extraSys) sp.value = origSys + extraSys;
+
+  // Append file context to user input temporarily
+  if (fileContext) {
+    const inp = document.getElementById('userInput');
+    inp.value = (inp.value || text) + fileContext;
+  }
+
+  await _origSend();
+
+  // Restore
+  if (sp && extraSys) sp.value = origSys;
+};
 
 // ── Helpers ────────────────────────────────────────────
 function showErr(m) { errBox.textContent = '⚠ ' + m; errBox.classList.add('show'); }
