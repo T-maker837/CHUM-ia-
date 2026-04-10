@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Groq · Chat IA</title>
+<title>CHUM IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
@@ -15,7 +15,7 @@
   --s2:      #161724;
   --s3:      #1c1e2e;
   --border:  #1f2135;
-  --green:   #00e5a0;
+  --green:   #ee0d89;
   --green2:  #00ffb3;
   --blue:    #4f7cff;
   --red:     #ff4f4f;
@@ -317,7 +317,7 @@ body::after {
 
 .save-settings-btn {
   background: linear-gradient(135deg, var(--green) 0%, var(--green2) 100%);
-  color: #09090f; border: none; border-radius: 9px;
+  color: #fdc407; border: none; border-radius: 9px;
   padding: 10px 20px; font-family: var(--mono); font-size: 12px;
   font-weight: 600; cursor: pointer; transition: opacity .2s; margin-top: 8px;
 }
@@ -379,8 +379,8 @@ body::after {
 
     <div class="sb-header">
       <div class="sb-logo">
-        <div class="sb-logo-mark">G</div>
-        <div class="sb-logo-text">Groq <span>Chat</span></div>
+        <div class="sb-logo-mark">C</div>
+        <div class="sb-logo-text">Chum <span>ia</span></div>
       </div>
       <button class="toggle-btn" onclick="toggleSidebar()" title="Réduire">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -443,10 +443,7 @@ body::after {
         <select id="modelSel" class="model-select">
           <option value="llama-3.3-70b-versatile">Llama 3.3 70B — Versatile</option>
           <option value="llama-3.1-8b-instant">Llama 3.1 8B — Instant</option>
-          <option value="llama3-70b-8192">Llama 3 70B</option>
-          <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
-          <option value="gemma2-9b-it">Gemma 2 9B</option>
-          <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B</option>
+        
         </select>
       </div>
       <div class="speed-badge"><div class="speed-dot"></div>LPU · ~500 tok/s</div>
@@ -456,8 +453,8 @@ body::after {
     <div class="panel active" id="panel-chat">
       <div class="messages" id="messages">
         <div class="welcome" id="welcome">
-          <div class="welcome-icon">G</div>
-          <h2>Bonjour, je suis <span>Groq</span></h2>
+          <div class="welcome-icon">C</div>
+          <h2>Bonjour, je suis <span>Chum IA</span></h2>
           <p>Inférence ultra-rapide propulsée par LPU™.</p>
           <div class="chips">
             <button class="chip" onclick="suggest(this)">C'est quoi un LPU ?</button>
@@ -500,9 +497,7 @@ body::after {
             <select class="setting-select" id="defaultModel">
               <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
               <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
-              <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
-              <option value="gemma2-9b-it">Gemma 2 9B</option>
-              <option value="deepseek-r1-distill-llama-70b">DeepSeek R1</option>
+          
             </select>
           </div>
         </div>
@@ -534,7 +529,7 @@ body::after {
     <!-- ── Panel IMAGES ── -->
     <div class="panel" id="panel-image">
       <div class="image-panel">
-        <h2>Génération d'<span>Images</span> <small style="font-size:11px;color:var(--muted);font-family:var(--mono);font-weight:400">via Pollinations.ai · 100% gratuit</small></h2>
+        <h2>Génération d'<span>Images</span> <small style="font-size:11px;color:var(--muted);font-family:var(--mono);font-weight:400">via Pollinations.ai · 100% gratuit (il est possible qu'il y ait un disfonctionnement de la génération)</small></h2>
 
         <div class="img-options">
           <span class="img-opt-lbl">Taille</span>
@@ -593,11 +588,11 @@ body::after {
     <div class="panel" id="panel-about">
       <div class="about-panel">
         <h2>À pro<span>pos</span></h2>
-        <p>Groq Chat est une interface IA ultra-rapide utilisant les LPU™ (Language Processing Units) de Groq pour une inférence en temps quasi-réel.</p>
+        <p>Chum IA est une interface IA ultra-rapide utilisant les LPU™ (Language Processing Units) de Groq pour une inférence en temps quasi-réel.</p>
 
         <div class="about-card">
           <div class="about-card-title">Version</div>
-          <div class="about-card-val">Groq Chat v2.0 — avec sidebar</div>
+          <div class="about-card-val">Chum IA  v2.0 — avec sidebar</div>
         </div>
         <div class="about-card">
           <div class="about-card-title">API</div>
@@ -605,7 +600,7 @@ body::after {
         </div>
         <div class="about-card">
           <div class="about-card-title">Modèles disponibles</div>
-          <div class="about-card-val">Llama 3.3 70B · Llama 3.1 8B · Mixtral 8x7B · Gemma 2 9B · DeepSeek R1 70B</div>
+          <div class="about-card-val">Llama 3.3 70B · Llama 3.1 8B </div>
         </div>
         <div class="about-card">
           <div class="about-card-title">Confidentialité</div>
