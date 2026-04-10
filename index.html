@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chum-ia</title>
+<title>Groq · Chat IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:      #222222;
+  --bg:      #09090f;
   --s1:      #0f1019;
   --s2:      #161724;
-  --s3:      #222222;
+  --s3:      #1c1e2e;
   --border:  #1f2135;
-  --green:   #d14960;
+  --green:   #00e5a0;
   --green2:  #00ffb3;
   --blue:    #4f7cff;
   --red:     #ff4f4f;
@@ -335,6 +335,40 @@ body::after {
 }
 .about-card-title { color: var(--green); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; font-weight: 500; }
 .about-card-val { color: var(--text); }
+
+/* ── Image panel ── */
+.image-panel { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 18px; }
+.image-panel h2 { font-family: var(--head); font-size: 20px; font-weight: 700; }
+.image-panel h2 span { color: var(--blue); }
+.img-prompt-row { display: flex; gap: 8px; align-items: flex-end; }
+.img-prompt-input { flex: 1; background: var(--s1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; font-family: var(--mono); font-size: 13px; color: var(--text); outline: none; resize: none; min-height: 60px; max-height: 120px; line-height: 1.6; transition: border-color .2s; }
+.img-prompt-input:focus { border-color: var(--blue); }
+.img-prompt-input::placeholder { color: var(--muted); }
+.img-gen-btn { background: linear-gradient(135deg, var(--blue) 0%, #7c4fff 100%); color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-family: var(--mono); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 7px; white-space: nowrap; align-self: flex-end; }
+.img-gen-btn:hover { opacity: .85; transform: scale(1.03); }
+.img-gen-btn:active { transform: scale(.97); }
+.img-gen-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.img-options { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.img-opt-lbl { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); font-weight: 500; }
+.img-opt-select { background: var(--s1); border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; font-family: var(--mono); font-size: 11.5px; color: var(--text); outline: none; cursor: pointer; }
+.img-opt-select option { background: var(--s2); }
+.img-style-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.img-style-chip { background: var(--s1); border: 1px solid var(--border); border-radius: 100px; padding: 4px 11px; font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: pointer; transition: all .15s; }
+.img-style-chip:hover { border-color: var(--blue); color: var(--blue); }
+.img-style-chip.selected { border-color: var(--blue); color: var(--blue); background: rgba(79,124,255,.1); }
+.img-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.img-card { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; animation: rise .4s ease forwards; opacity: 0; position: relative; }
+.img-card img { width: 100%; display: block; aspect-ratio: 1; object-fit: cover; background: var(--s2); }
+.img-card-footer { padding: 8px 10px; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.img-card-actions { position: absolute; top: 7px; right: 7px; display: flex; gap: 5px; opacity: 0; transition: opacity .2s; }
+.img-card:hover .img-card-actions { opacity: 1; }
+.img-action-btn { background: rgba(9,9,15,.75); border: 1px solid var(--border); border-radius: 7px; padding: 5px; cursor: pointer; color: var(--text); backdrop-filter: blur(4px); transition: all .15s; display: flex; }
+.img-action-btn:hover { background: rgba(79,124,255,.3); border-color: var(--blue); }
+.img-action-btn svg { width: 13px; height: 13px; }
+.img-skeleton { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.img-spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.img-skeleton-txt { font-size: 11px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -345,8 +379,8 @@ body::after {
 
     <div class="sb-header">
       <div class="sb-logo">
-        <div class="sb-logo-mark">C</div>
-        <div class="sb-logo-text">Chum <span>IA</span></div>
+        <div class="sb-logo-mark">G</div>
+        <div class="sb-logo-text">Groq <span>Chat</span></div>
       </div>
       <button class="toggle-btn" onclick="toggleSidebar()" title="Réduire">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -382,6 +416,12 @@ body::after {
         </svg>
         <span>Paramètres</span>
       </button>
+      <button class="nav-item" id="nav-image" onclick="showPanel('image')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span>Images</span>
+      </button>
       <button class="nav-item" id="nav-about" onclick="showPanel('about')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
@@ -401,12 +441,12 @@ body::after {
       <div class="model-bar">
         <span class="model-lbl">Modèle</span>
         <select id="modelSel" class="model-select">
-          <option value="llama-3.3-70b-versatile">Llama 3.3 70B — Versatile (recommandé)</option>
-          <option value="llama-3.1-8b-instant">Llama 3.1 8B — Instant (recommandé)</option>
-          <option value="llama3-70b-8192">Llama 3 70B (non dispo)</option>
-          <option value="mixtral-8x7b-32768">Mixtral 8x7B (non dispo)</option>
-          <option value="gemma2-9b-it">Gemma 2 9B (non dispo)</option>
-          <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B (non dispo)</option>
+          <option value="llama-3.3-70b-versatile">Llama 3.3 70B — Versatile</option>
+          <option value="llama-3.1-8b-instant">Llama 3.1 8B — Instant</option>
+          <option value="llama3-70b-8192">Llama 3 70B</option>
+          <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+          <option value="gemma2-9b-it">Gemma 2 9B</option>
+          <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B</option>
         </select>
       </div>
       <div class="speed-badge"><div class="speed-dot"></div>LPU · ~500 tok/s</div>
@@ -458,7 +498,7 @@ body::after {
               <div class="setting-row-sub">Utilisé pour toutes les nouvelles conversations</div>
             </div>
             <select class="setting-select" id="defaultModel">
-              <option value="llama-3.3-70b-versatile">Llama 3.3 70B (le meilleur)</option>
+              <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
               <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
               <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
               <option value="gemma2-9b-it">Gemma 2 9B</option>
@@ -486,7 +526,66 @@ body::after {
           </div>
         </div>
 
-        <button class="save-settings-btn" onclick="saveSettings()">✓ Engistrer les paramètres</button>
+        <button class="save-settings-btn" onclick="saveSettings()">✓ Sauvegarder les paramètres</button>
+      </div>
+    </div>
+
+
+    <!-- ── Panel IMAGES ── -->
+    <div class="panel" id="panel-image">
+      <div class="image-panel">
+        <h2>Génération d'<span>Images</span> <small style="font-size:11px;color:var(--muted);font-family:var(--mono);font-weight:400">via Pollinations.ai · 100% gratuit</small></h2>
+
+        <div class="img-options">
+          <span class="img-opt-lbl">Taille</span>
+          <select class="img-opt-select" id="imgWidth">
+            <option value="512">512px</option>
+            <option value="768">768px</option>
+            <option value="1024" selected>1024px</option>
+          </select>
+          <span style="color:var(--muted)">×</span>
+          <select class="img-opt-select" id="imgHeight">
+            <option value="512">512px</option>
+            <option value="768">768px</option>
+            <option value="1024" selected>1024px</option>
+          </select>
+          <span class="img-opt-lbl" style="margin-left:8px">Modèle</span>
+          <select class="img-opt-select" id="imgModel">
+            <option value="flux">Flux (réaliste)</option>
+            <option value="flux-realism">Flux Realism</option>
+            <option value="flux-anime">Flux Anime</option>
+            <option value="flux-3d">Flux 3D</option>
+            <option value="turbo">Turbo (rapide)</option>
+          </select>
+        </div>
+
+        <div class="img-style-chips" id="styleChips">
+          <span class="img-opt-lbl" style="align-self:center">Style</span>
+          <div class="img-style-chip selected" onclick="selectStyle(this, '')">Aucun</div>
+          <div class="img-style-chip" onclick="selectStyle(this, 'photorealistic, 8k, detailed')">Photo</div>
+          <div class="img-style-chip" onclick="selectStyle(this, 'digital art, vibrant colors')">Art digital</div>
+          <div class="img-style-chip" onclick="selectStyle(this, 'anime style, manga')">Anime</div>
+          <div class="img-style-chip" onclick="selectStyle(this, 'oil painting, classical art')">Peinture</div>
+          <div class="img-style-chip" onclick="selectStyle(this, 'cinematic, dramatic lighting, film')">Cinéma</div>
+          <div class="img-style-chip" onclick="selectStyle(this, 'pixel art, retro, 16-bit')">Pixel art</div>
+          <div class="img-style-chip" onclick="selectStyle(this, 'watercolor, soft, pastel')">Aquarelle</div>
+        </div>
+
+        <div class="img-prompt-row">
+          <textarea class="img-prompt-input" id="imgPrompt" placeholder="Décrivez l'image à générer… ex: un chat astronaute sur la lune, style réaliste"></textarea>
+          <button class="img-gen-btn" id="imgGenBtn" onclick="generateImage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Générer
+          </button>
+        </div>
+
+        <div class="img-gallery" id="imgGallery">
+          <div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:12px;padding:30px 0">
+            ✦ Vos images générées apparaîtront ici
+          </div>
+        </div>
       </div>
     </div>
 
@@ -494,11 +593,11 @@ body::after {
     <div class="panel" id="panel-about">
       <div class="about-panel">
         <h2>À pro<span>pos</span></h2>
-        <p>Chum ia est une interface IA ultra-rapide utilisant les LPU™ (Language Processing Units) de Chum.ia pour une inférence en temps quasi-réel.</p>
+        <p>Groq Chat est une interface IA ultra-rapide utilisant les LPU™ (Language Processing Units) de Groq pour une inférence en temps quasi-réel.</p>
 
         <div class="about-card">
           <div class="about-card-title">Version</div>
-          <div class="about-card-val">Chum ia v2.0 — avec sidebar</div>
+          <div class="about-card-val">Groq Chat v2.0 — avec sidebar</div>
         </div>
         <div class="about-card">
           <div class="about-card-title">API</div>
@@ -510,7 +609,7 @@ body::after {
         </div>
         <div class="about-card">
           <div class="about-card-title">Confidentialité</div>
-          <div class="about-card-val">Vos conversations sont stockées uniquement dans votre navigateur (localStorage). Rien n'est envoyé à des serveurs tiers sauf l'API chum.ia.</div>
+          <div class="about-card-val">Vos conversations sont stockées uniquement dans votre navigateur (localStorage). Rien n'est envoyé à des serveurs tiers sauf l'API Groq.</div>
         </div>
       </div>
     </div>
@@ -715,7 +814,7 @@ function renderMsg(role, text) {
   d.innerHTML = `
     <div class="av ${isUser ? 'u' : 'a'}">${isUser ? '◎' : 'G'}</div>
     <div class="bubble">
-      <div class="bwho">${isUser ? 'Vous' : 'Chum ia'}</div>
+      <div class="bwho">${isUser ? 'Vous' : 'Groq'}</div>
       <div class="btext">${esc(text)}</div>
     </div>`;
   msgEl.appendChild(d);
@@ -758,6 +857,81 @@ function loadSettings() {
   if (s.sys)   { const sp = document.getElementById('systemPrompt'); if(sp) sp.value = s.sys; }
   if (s.save !== undefined) { const sh = document.getElementById('saveHistory'); if(sh) sh.checked = s.save; }
 }
+
+
+// ── Image generation (Pollinations.ai) ────────────────
+let selectedStyle = '';
+
+function selectStyle(el, style) {
+  document.querySelectorAll('.img-style-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedStyle = style;
+}
+
+async function generateImage() {
+  const promptRaw = document.getElementById('imgPrompt').value.trim();
+  if (!promptRaw) return;
+
+  const w       = document.getElementById('imgWidth').value;
+  const h       = document.getElementById('imgHeight').value;
+  const model   = document.getElementById('imgModel').value;
+  const gallery = document.getElementById('imgGallery');
+  const btn     = document.getElementById('imgGenBtn');
+
+  const fullPrompt = selectedStyle ? promptRaw + ', ' + selectedStyle : promptRaw;
+  const seed = Math.floor(Math.random() * 999999);
+
+  // Vider le placeholder si premier rendu
+  if (gallery.querySelector('[style*="grid-column"]')) gallery.innerHTML = '';
+
+  // Skeleton loader
+  const skeleton = document.createElement('div');
+  skeleton.className = 'img-skeleton';
+  skeleton.innerHTML = `<div class="img-spinner"></div><div class="img-skeleton-txt">Génération…</div>`;
+  gallery.prepend(skeleton);
+
+  btn.disabled = true;
+
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${w}&height=${h}&model=${model}&seed=${seed}&nologo=true`;
+
+  const img = new Image();
+  img.onload = () => {
+    skeleton.remove();
+    btn.disabled = false;
+    const card = document.createElement('div');
+    card.className = 'img-card';
+    card.innerHTML = `
+      <div class="img-card-actions">
+        <a class="img-action-btn" href="${url}" download="image-${seed}.jpg" title="Télécharger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </a>
+        <button class="img-action-btn" onclick="openFull('${url}')" title="Voir en grand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
+      </div>
+      <img src="${url}" alt="${esc(promptRaw)}" />
+      <div class="img-card-footer">${esc(promptRaw.slice(0, 50))}${promptRaw.length > 50 ? '…' : ''}</div>`;
+    gallery.prepend(card);
+  };
+  img.onerror = () => {
+    skeleton.remove();
+    btn.disabled = false;
+    const err = document.createElement('div');
+    err.className = 'img-skeleton';
+    err.innerHTML = `<div style="color:var(--red);font-size:12px">⚠ Erreur de génération</div>`;
+    gallery.prepend(err);
+  };
+  img.src = url;
+}
+
+function openFull(url) {
+  window.open(url, '_blank');
+}
+
+// Enter dans le prompt image
+document.getElementById('imgPrompt').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateImage(); }
+});
 
 // ── Helpers ────────────────────────────────────────────
 function showErr(m) { errBox.textContent = '⚠ ' + m; errBox.classList.add('show'); }
