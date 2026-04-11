@@ -7,8 +7,494 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js">
+// ════════════════════════════════════
+// VOICE MODE
+// ════════════════════════════════════
+let recognition = null;
+let isListening = false;
+let currentUtterance = null;
+let voiceTranscript = '';
+let selectedVoice = null;
+
+// ── Init Speech Recognition ──────────────────────────
+function initSpeechRecognition() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) return null;
+  const rec = new SpeechRec();
+  rec.lang = 'fr-FR';
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+
+  rec.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    voiceTranscript += final;
+    const display = voiceTranscript + interim;
+    const el = document.getElementById('voiceTranscript');
+    el.textContent = display || 'Parlez…';
+    el.classList.toggle('active', !!display);
+    if (final) document.getElementById('voiceSendBtn').style.display = 'flex';
+  };
+
+  rec.onerror = (e) => {
+    setVoiceStatus('Erreur : ' + e.error, false);
+    stopListening();
+  };
+  rec.onend = () => { if (isListening) rec.start(); };
+  return rec;
+}
+
+// ── Voice overlay ────────────────────────────────────
+function openVoiceOverlay() {
+  document.getElementById('voiceOverlay').classList.add('show');
+  loadVoices();
+  voiceTranscript = '';
+  document.getElementById('voiceTranscript').textContent = 'Cliquez sur le micro pour parler…';
+  document.getElementById('voiceTranscript').classList.remove('active');
+  document.getElementById('voiceSendBtn').style.display = 'none';
+  document.getElementById('voiceStopBtn').style.display = 'none';
+  setVoiceStatus('Cliquez pour parler', false);
+}
+
+function closeVoiceOverlay() {
+  stopListening();
+  stopSpeaking();
+  document.getElementById('voiceOverlay').classList.remove('show');
+}
+
+// ── Listen toggle ────────────────────────────────────
+function toggleListening() {
+  if (isListening) stopListening();
+  else startListening();
+}
+
+function startListening() {
+  stopSpeaking();
+  if (!recognition) recognition = initSpeechRecognition();
+  if (!recognition) { setVoiceStatus('Microphone non supporté par ce navigateur', false); return; }
+  voiceTranscript = '';
+  document.getElementById('voiceTranscript').textContent = 'Parlez…';
+  document.getElementById('voiceSendBtn').style.display = 'none';
+  isListening = true;
+  recognition.start();
+  const orb = document.getElementById('voiceOrb');
+  const wrap = document.getElementById('voiceOrbWrap');
+  orb.classList.add('listening');
+  wrap.classList.add('active');
+  document.getElementById('voiceInputBtn').classList.add('listening');
+  setVoiceStatus('Écoute en cours…', true);
+}
+
+function stopListening() {
+  isListening = false;
+  if (recognition) { try { recognition.stop(); } catch(e){} }
+  const orb = document.getElementById('voiceOrb');
+  const wrap = document.getElementById('voiceOrbWrap');
+  orb.classList.remove('listening');
+  wrap.classList.remove('active');
+  document.getElementById('voiceInputBtn').classList.remove('listening');
+  setVoiceStatus(voiceTranscript ? 'Cliquez Envoyer ou parlez à nouveau' : 'Cliquez pour parler', false);
+  if (voiceTranscript) document.getElementById('voiceSendBtn').style.display = 'flex';
+}
+
+// ── Send voice message ────────────────────────────────
+async function sendVoiceMessage() {
+  const text = voiceTranscript.trim();
+  if (!text) return;
+  stopListening();
+  // Put text in main input and send
+  document.getElementById('userInput').value = text;
+  closeVoiceOverlay();
+  await sendMsg();
+  // After response, speak the last AI message
+  setTimeout(() => speakLastResponse(), 500);
+}
+
+// ── TTS ───────────────────────────────────────────────
+function loadVoices() {
+  const sel = document.getElementById('voiceSelect');
+  let voices = speechSynthesis.getVoices();
+  if (!voices.length) {
+    speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); populateVoices(sel, voices); };
+  } else populateVoices(sel, voices);
+}
+
+function populateVoices(sel, voices) {
+  sel.innerHTML = '';
+  const fr = voices.filter(v => v.lang.startsWith('fr'));
+  const others = voices.filter(v => !v.lang.startsWith('fr'));
+  const all = [...fr, ...others];
+  all.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = v.name + ' (' + v.lang + ')';
+    sel.appendChild(opt);
+  });
+  if (fr.length) { sel.value = 0; selectedVoice = fr[0]; }
+}
+
+function updateVoice() {
+  const sel = document.getElementById('voiceSelect');
+  const voices = speechSynthesis.getVoices();
+  const fr = voices.filter(v => v.lang.startsWith('fr'));
+  const others = voices.filter(v => !v.lang.startsWith('fr'));
+  const all = [...fr, ...others];
+  selectedVoice = all[parseInt(sel.value)] || null;
+}
+
+function speakText(text) {
+  stopSpeaking();
+  if (!window.speechSynthesis) return;
+  // Clean markdown for TTS
+  const clean = text
+    .replace(/```[\s\S]*?```/g, 'bloc de code.')
+    .replace(/`[^`]+`/g, '')
+    .replace(/#{1,6}\s/g, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[-*+]\s/g, '')
+    .replace(/\n+/g, '. ')
+    .trim();
+
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = 'fr-FR';
+  utt.rate = parseFloat(document.getElementById('voiceRate')?.value || 1);
+  utt.volume = parseFloat(document.getElementById('voiceVol')?.value || 1);
+  if (selectedVoice) utt.voice = selectedVoice;
+
+  utt.onstart = () => {
+    document.getElementById('voiceOrb').classList.add('speaking');
+    document.getElementById('voiceStopBtn').style.display = 'flex';
+    setVoiceStatus('Chum IA parle…', false);
+  };
+  utt.onend = () => {
+    document.getElementById('voiceOrb').classList.remove('speaking');
+    document.getElementById('voiceStopBtn').style.display = 'none';
+    setVoiceStatus('Terminé', false);
+  };
+
+  currentUtterance = utt;
+  speechSynthesis.speak(utt);
+}
+
+function stopSpeaking() {
+  speechSynthesis.cancel();
+  document.getElementById('voiceOrb')?.classList.remove('speaking');
+  document.getElementById('voiceStopBtn').style.display = 'none';
+}
+
+function speakLastResponse() {
+  const groups = document.querySelectorAll('.msg-group.ai');
+  if (!groups.length) return;
+  const last = groups[groups.length - 1];
+  const text = last.querySelector('.msg-bubble')?.innerText || '';
+  if (text) speakText(text);
+}
+
+function setVoiceStatus(txt, active) {
+  const el = document.getElementById('voiceStatus');
+  el.textContent = txt;
+}
+
+// ── Add TTS button to AI messages ────────────────────
+const _origRenderMsg = renderMsg;
+window.renderMsg = function(role, content, animate=true) {
+  const g = _origRenderMsg(role, content, animate);
+  if (role !== 'user' && g) {
+    const actions = g.querySelector('.msg-actions');
+    if (actions) {
+      const ttsBtn = document.createElement('button');
+      ttsBtn.className = 'tts-btn msg-act-btn';
+      ttsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`;
+      ttsBtn.onclick = function() {
+        const text = g.querySelector('.msg-bubble')?.innerText || '';
+        if (ttsBtn.classList.contains('playing')) {
+          stopSpeaking();
+          ttsBtn.classList.remove('playing');
+          ttsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`;
+        } else {
+          document.querySelectorAll('.tts-btn').forEach(b => { b.classList.remove('playing'); b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`; });
+          ttsBtn.classList.add('playing');
+          ttsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Arrêter`;
+          speakText(text);
+          const utt = speechSynthesis.speaking;
+          const checkEnd = setInterval(() => {
+            if (!speechSynthesis.speaking) {
+              ttsBtn.classList.remove('playing');
+              ttsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`;
+              clearInterval(checkEnd);
+            }
+          }, 500);
+        }
+      };
+      actions.appendChild(ttsBtn);
+    }
+  }
+  return g;
+};
+
+// Close overlay with Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeVoiceOverlay();
+});
+
+// Load voices on init
+if (window.speechSynthesis) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => {};
+}
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js">
+// ════════════════════════════════════
+// VOICE MODE
+// ════════════════════════════════════
+let recognition = null;
+let isListening = false;
+let currentUtterance = null;
+let voiceTranscript = '';
+let selectedVoice = null;
+
+// ── Init Speech Recognition ──────────────────────────
+function initSpeechRecognition() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) return null;
+  const rec = new SpeechRec();
+  rec.lang = 'fr-FR';
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+
+  rec.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    voiceTranscript += final;
+    const display = voiceTranscript + interim;
+    const el = document.getElementById('voiceTranscript');
+    el.textContent = display || 'Parlez…';
+    el.classList.toggle('active', !!display);
+    if (final) document.getElementById('voiceSendBtn').style.display = 'flex';
+  };
+
+  rec.onerror = (e) => {
+    setVoiceStatus('Erreur : ' + e.error, false);
+    stopListening();
+  };
+  rec.onend = () => { if (isListening) rec.start(); };
+  return rec;
+}
+
+// ── Voice overlay ────────────────────────────────────
+function openVoiceOverlay() {
+  document.getElementById('voiceOverlay').classList.add('show');
+  loadVoices();
+  voiceTranscript = '';
+  document.getElementById('voiceTranscript').textContent = 'Cliquez sur le micro pour parler…';
+  document.getElementById('voiceTranscript').classList.remove('active');
+  document.getElementById('voiceSendBtn').style.display = 'none';
+  document.getElementById('voiceStopBtn').style.display = 'none';
+  setVoiceStatus('Cliquez pour parler', false);
+}
+
+function closeVoiceOverlay() {
+  stopListening();
+  stopSpeaking();
+  document.getElementById('voiceOverlay').classList.remove('show');
+}
+
+// ── Listen toggle ────────────────────────────────────
+function toggleListening() {
+  if (isListening) stopListening();
+  else startListening();
+}
+
+function startListening() {
+  stopSpeaking();
+  if (!recognition) recognition = initSpeechRecognition();
+  if (!recognition) { setVoiceStatus('Microphone non supporté par ce navigateur', false); return; }
+  voiceTranscript = '';
+  document.getElementById('voiceTranscript').textContent = 'Parlez…';
+  document.getElementById('voiceSendBtn').style.display = 'none';
+  isListening = true;
+  recognition.start();
+  const orb = document.getElementById('voiceOrb');
+  const wrap = document.getElementById('voiceOrbWrap');
+  orb.classList.add('listening');
+  wrap.classList.add('active');
+  document.getElementById('voiceInputBtn').classList.add('listening');
+  setVoiceStatus('Écoute en cours…', true);
+}
+
+function stopListening() {
+  isListening = false;
+  if (recognition) { try { recognition.stop(); } catch(e){} }
+  const orb = document.getElementById('voiceOrb');
+  const wrap = document.getElementById('voiceOrbWrap');
+  orb.classList.remove('listening');
+  wrap.classList.remove('active');
+  document.getElementById('voiceInputBtn').classList.remove('listening');
+  setVoiceStatus(voiceTranscript ? 'Cliquez Envoyer ou parlez à nouveau' : 'Cliquez pour parler', false);
+  if (voiceTranscript) document.getElementById('voiceSendBtn').style.display = 'flex';
+}
+
+// ── Send voice message ────────────────────────────────
+async function sendVoiceMessage() {
+  const text = voiceTranscript.trim();
+  if (!text) return;
+  stopListening();
+  // Put text in main input and send
+  document.getElementById('userInput').value = text;
+  closeVoiceOverlay();
+  await sendMsg();
+  // After response, speak the last AI message
+  setTimeout(() => speakLastResponse(), 500);
+}
+
+// ── TTS ───────────────────────────────────────────────
+function loadVoices() {
+  const sel = document.getElementById('voiceSelect');
+  let voices = speechSynthesis.getVoices();
+  if (!voices.length) {
+    speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); populateVoices(sel, voices); };
+  } else populateVoices(sel, voices);
+}
+
+function populateVoices(sel, voices) {
+  sel.innerHTML = '';
+  const fr = voices.filter(v => v.lang.startsWith('fr'));
+  const others = voices.filter(v => !v.lang.startsWith('fr'));
+  const all = [...fr, ...others];
+  all.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = v.name + ' (' + v.lang + ')';
+    sel.appendChild(opt);
+  });
+  if (fr.length) { sel.value = 0; selectedVoice = fr[0]; }
+}
+
+function updateVoice() {
+  const sel = document.getElementById('voiceSelect');
+  const voices = speechSynthesis.getVoices();
+  const fr = voices.filter(v => v.lang.startsWith('fr'));
+  const others = voices.filter(v => !v.lang.startsWith('fr'));
+  const all = [...fr, ...others];
+  selectedVoice = all[parseInt(sel.value)] || null;
+}
+
+function speakText(text) {
+  stopSpeaking();
+  if (!window.speechSynthesis) return;
+  // Clean markdown for TTS
+  const clean = text
+    .replace(/```[\s\S]*?```/g, 'bloc de code.')
+    .replace(/`[^`]+`/g, '')
+    .replace(/#{1,6}\s/g, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[-*+]\s/g, '')
+    .replace(/\n+/g, '. ')
+    .trim();
+
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = 'fr-FR';
+  utt.rate = parseFloat(document.getElementById('voiceRate')?.value || 1);
+  utt.volume = parseFloat(document.getElementById('voiceVol')?.value || 1);
+  if (selectedVoice) utt.voice = selectedVoice;
+
+  utt.onstart = () => {
+    document.getElementById('voiceOrb').classList.add('speaking');
+    document.getElementById('voiceStopBtn').style.display = 'flex';
+    setVoiceStatus('Chum IA parle…', false);
+  };
+  utt.onend = () => {
+    document.getElementById('voiceOrb').classList.remove('speaking');
+    document.getElementById('voiceStopBtn').style.display = 'none';
+    setVoiceStatus('Terminé', false);
+  };
+
+  currentUtterance = utt;
+  speechSynthesis.speak(utt);
+}
+
+function stopSpeaking() {
+  speechSynthesis.cancel();
+  document.getElementById('voiceOrb')?.classList.remove('speaking');
+  document.getElementById('voiceStopBtn').style.display = 'none';
+}
+
+function speakLastResponse() {
+  const groups = document.querySelectorAll('.msg-group.ai');
+  if (!groups.length) return;
+  const last = groups[groups.length - 1];
+  const text = last.querySelector('.msg-bubble')?.innerText || '';
+  if (text) speakText(text);
+}
+
+function setVoiceStatus(txt, active) {
+  const el = document.getElementById('voiceStatus');
+  el.textContent = txt;
+}
+
+// ── Add TTS button to AI messages ────────────────────
+const _origRenderMsg = renderMsg;
+window.renderMsg = function(role, content, animate=true) {
+  const g = _origRenderMsg(role, content, animate);
+  if (role !== 'user' && g) {
+    const actions = g.querySelector('.msg-actions');
+    if (actions) {
+      const ttsBtn = document.createElement('button');
+      ttsBtn.className = 'tts-btn msg-act-btn';
+      ttsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`;
+      ttsBtn.onclick = function() {
+        const text = g.querySelector('.msg-bubble')?.innerText || '';
+        if (ttsBtn.classList.contains('playing')) {
+          stopSpeaking();
+          ttsBtn.classList.remove('playing');
+          ttsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`;
+        } else {
+          document.querySelectorAll('.tts-btn').forEach(b => { b.classList.remove('playing'); b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`; });
+          ttsBtn.classList.add('playing');
+          ttsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Arrêter`;
+          speakText(text);
+          const utt = speechSynthesis.speaking;
+          const checkEnd = setInterval(() => {
+            if (!speechSynthesis.speaking) {
+              ttsBtn.classList.remove('playing');
+              ttsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`;
+              clearInterval(checkEnd);
+            }
+          }, 500);
+        }
+      };
+      actions.appendChild(ttsBtn);
+    }
+  }
+  return g;
+};
+
+// Close overlay with Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeVoiceOverlay();
+});
+
+// Load voices on init
+if (window.speechSynthesis) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => {};
+}
+
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -712,6 +1198,157 @@ body::after{
   border-radius:100px;padding:4px 12px;
   font-size:11px;color:var(--muted);
 }
+
+/* ════════════════════════════════════
+   VOICE MODE
+════════════════════════════════════ */
+.voice-btn {
+  display:flex;align-items:center;justify-content:center;
+  width:30px;height:30px;background:none;border:1px solid var(--border);
+  border-radius:9px;color:var(--muted);cursor:pointer;transition:all .2s;
+  position:relative;
+}
+.voice-btn:hover{border-color:var(--red);color:var(--red);background:rgba(255,79,106,.07)}
+.voice-btn.listening{
+  border-color:var(--red);background:rgba(255,79,106,.12);color:var(--red);
+  animation:voicePulse 1.2s ease-in-out infinite;
+}
+@keyframes voicePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,79,106,.4)}
+  50%{box-shadow:0 0 0 8px rgba(255,79,106,0)}
+}
+.voice-btn svg{width:14px;height:14px}
+
+/* ── Voice overlay (big mic button) ── */
+.voice-overlay{
+  position:fixed;inset:0;background:rgba(7,8,14,.92);
+  backdrop-filter:blur(16px);
+  z-index:1000;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:28px;
+  animation:fadeIn .2s ease;
+}
+.voice-overlay.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.voice-orb-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.voice-orb-ring{
+  position:absolute;width:140px;height:140px;border-radius:50%;
+  border:2px solid rgba(255,79,106,.3);
+  animation:ringPulse 1.5s ease-in-out infinite;display:none;
+}
+.voice-orb-ring:nth-child(2){animation-delay:.3s;width:170px;height:170px;border-color:rgba(255,79,106,.15)}
+.voice-orb-ring:nth-child(3){animation-delay:.6s;width:200px;height:200px;border-color:rgba(255,79,106,.07)}
+@keyframes ringPulse{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.06);opacity:.6}
+}
+.voice-orb-wrap.active .voice-orb-ring{display:block}
+
+.voice-orb{
+  width:110px;height:110px;border-radius:50%;
+  background:linear-gradient(135deg,var(--s3),var(--s2));
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .25s;position:relative;z-index:1;
+  box-shadow:0 8px 40px rgba(0,0,0,.5);
+}
+.voice-orb:hover{transform:scale(1.05)}
+.voice-orb.listening{
+  background:linear-gradient(135deg,rgba(255,79,106,.3),rgba(255,79,106,.15));
+  border-color:var(--red);
+  box-shadow:0 0 50px rgba(255,79,106,.3),0 8px 40px rgba(0,0,0,.5);
+}
+.voice-orb.speaking{
+  background:linear-gradient(135deg,rgba(0,229,160,.2),rgba(79,124,255,.15));
+  border-color:var(--green);
+  box-shadow:0 0 50px rgba(0,229,160,.25),0 8px 40px rgba(0,0,0,.5);
+}
+.voice-orb svg{width:36px;height:36px;color:var(--muted);transition:color .2s}
+.voice-orb.listening svg{color:var(--red)}
+.voice-orb.speaking svg{color:var(--green)}
+
+.voice-status{
+  font-family:var(--head);font-size:18px;font-weight:600;color:var(--text);
+  letter-spacing:-.3px;text-align:center;
+}
+.voice-transcript{
+  font-size:13px;color:var(--muted);max-width:500px;text-align:center;
+  min-height:44px;line-height:1.7;padding:0 20px;
+  background:var(--s1);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 20px;transition:all .2s;
+}
+.voice-transcript.active{border-color:var(--red);color:var(--text)}
+
+.voice-controls{display:flex;gap:12px;align-items:center}
+.voice-ctrl-btn{
+  display:flex;align-items:center;gap:7px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:100px;padding:9px 18px;
+  font-family:var(--mono);font-size:12px;color:var(--muted);
+  cursor:pointer;transition:all .2s;
+}
+.voice-ctrl-btn:hover{border-color:var(--border2);color:var(--text);background:var(--s3)}
+.voice-ctrl-btn.primary{
+  background:linear-gradient(135deg,var(--red),rgba(255,79,106,.7));
+  border-color:var(--red);color:#fff;
+  box-shadow:0 4px 16px rgba(255,79,106,.3);
+}
+.voice-ctrl-btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,79,106,.4)}
+.voice-ctrl-btn svg{width:14px;height:14px}
+
+/* Waveform bars */
+.waveform{
+  display:flex;align-items:center;gap:3px;height:28px;display:none;
+}
+.voice-orb-wrap.active .waveform{display:flex}
+.wf-bar{
+  width:3px;border-radius:3px;background:var(--red);
+  animation:wfAnim 1s ease-in-out infinite;
+}
+.wf-bar:nth-child(1){animation-delay:0s;height:8px}
+.wf-bar:nth-child(2){animation-delay:.1s;height:16px}
+.wf-bar:nth-child(3){animation-delay:.2s;height:24px}
+.wf-bar:nth-child(4){animation-delay:.3s;height:14px}
+.wf-bar:nth-child(5){animation-delay:.4s;height:20px}
+.wf-bar:nth-child(6){animation-delay:.5s;height:10px}
+.wf-bar:nth-child(7){animation-delay:.6s;height:18px}
+@keyframes wfAnim{
+  0%,100%{transform:scaleY(.4);opacity:.5}
+  50%{transform:scaleY(1);opacity:1}
+}
+
+/* TTS indicator on messages */
+.tts-btn{
+  background:none;border:1px solid transparent;border-radius:6px;
+  padding:3px 7px;cursor:pointer;color:var(--muted);
+  font-family:var(--mono);font-size:10px;transition:all .15s;
+  display:flex;align-items:center;gap:4px;
+}
+.tts-btn:hover{border-color:var(--border);color:var(--green);background:var(--s2)}
+.tts-btn.playing{border-color:var(--green);color:var(--green);background:rgba(0,229,160,.07)}
+.tts-btn svg{width:11px;height:11px}
+
+/* Voice settings */
+.voice-settings-row{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:var(--r2);padding:10px 14px;margin-top:8px;
+  flex-wrap:wrap;
+}
+.voice-sl{
+  background:var(--s3);border:1px solid var(--border);
+  border-radius:7px;padding:4px 8px;
+  font-family:var(--mono);font-size:11.5px;color:var(--text);
+  outline:none;cursor:pointer;
+}
+.voice-range{
+  -webkit-appearance:none;height:4px;border-radius:4px;
+  background:var(--border);outline:none;flex:1;min-width:80px;
+}
+.voice-range::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--green);cursor:pointer;
+}
 </style>
 </head>
 <body>
@@ -1381,48 +2018,67 @@ function pickStyle(el, style) {
 async function genImage() {
   const prompt = document.getElementById('imgPrompt').value.trim();
   if (!prompt) return;
-  const model  = document.getElementById('imgModel').value;
-  const w      = document.getElementById('imgW').value;
-  const h      = document.getElementById('imgH').value;
-  const seed   = Math.floor(Math.random() * 999999);
-  const full   = imgStyle ? prompt + ', ' + imgStyle : prompt;
-  const url    = `https://image.pollinations.ai/prompt/${encodeURIComponent(full)}?width=${w}&height=${h}&model=${model}&seed=${seed}&nologo=true`;
-  const btn    = document.getElementById('imgGenBtn');
-  const gallery= document.getElementById('imgGallery');
+  const model   = document.getElementById('imgModel').value;
+  const w       = document.getElementById('imgW').value;
+  const h       = document.getElementById('imgH').value;
+  const seed    = Math.floor(Math.random() * 999999);
+  const full    = imgStyle ? prompt + ', ' + imgStyle : prompt;
+  const btn     = document.getElementById('imgGenBtn');
+  const gallery = document.getElementById('imgGallery');
 
-  // Remove empty state
+  // Pollinations URL — encode proprement
+  const encodedPrompt = encodeURIComponent(full);
+  const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${w}&height=${h}&model=${model}&seed=${seed}&nologo=true&enhance=false`;
+
+  // Remove empty placeholder
   const empty = gallery.querySelector('.img-empty');
   if (empty) empty.remove();
 
+  // Skeleton loader
   const skel = document.createElement('div');
   skel.className = 'img-skeleton';
-  skel.innerHTML = `<div class="img-spin"></div><div class="img-spin-txt">Génération en cours…</div>`;
+  skel.innerHTML = `<div class="img-spin"></div><div class="img-spin-txt">Génération… (30-60s)</div>`;
   gallery.prepend(skel);
   btn.disabled = true;
 
-  const img = new Image();
-  img.onload = () => {
-    skel.remove(); btn.disabled = false;
+  // Fetch via blob pour contourner les erreurs CORS/onerror de file://
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 90000); // 90s timeout
+
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const blob = await res.blob();
+    if (!blob.type.startsWith('image/')) throw new Error('Pas une image');
+
+    const blobUrl = URL.createObjectURL(blob);
+    skel.remove();
+    btn.disabled = false;
+
     const card = document.createElement('div');
     card.className = 'img-card';
     card.innerHTML = `
       <div class="img-card-actions">
-        <a class="img-act" href="${url}" download="chum-ia-${seed}.jpg" title="Télécharger">
+        <a class="img-act" href="${blobUrl}" download="chum-ia-${seed}.jpg" title="Télécharger">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </a>
-        <button class="img-act" onclick="window.open('${url}','_blank')" title="Agrandir">
+        <button class="img-act" onclick="window.open('${blobUrl}','_blank')" title="Agrandir">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
         </button>
       </div>
-      <img src="${url}" alt="${esc(prompt)}"/>
+      <img src="${blobUrl}" alt="${esc(prompt)}"/>
       <div class="img-card-info">${esc(prompt.slice(0,55))}${prompt.length>55?'…':''}</div>`;
     gallery.prepend(card);
-  };
-  img.onerror = () => {
-    skel.innerHTML = `<div style="color:var(--red);font-size:12px">⚠ Erreur de génération</div>`;
+
+  } catch(err) {
     btn.disabled = false;
-  };
-  img.src = url;
+    const msg = err.name === 'AbortError' ? '⏱ Délai dépassé (90s) — réessayez' : `⚠ ${err.message || 'Erreur de génération'}`;
+    skel.innerHTML = `
+      <div style="color:var(--red);font-size:12px;text-align:center;padding:10px">${msg}</div>
+      <button onclick="this.closest('.img-skeleton').remove();genImage()" style="background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--text);font-family:var(--mono);font-size:11px;cursor:pointer;margin-top:4px">🔄 Réessayer</button>`;
+  }
 }
 
 // ── Settings ──────────────────────────────────────────
@@ -1469,6 +2125,422 @@ function copyCode(id, btn) {
   btn.classList.add('copied'); btn.textContent = '✓ Copié !';
   setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1"/></svg>Copier`; }, 1500);
 }
+
+// ════════════════════════════════════
+// VOICE CONVERSATION MODE
+// ════════════════════════════════════
+let recognition   = null;
+let isListening   = false;
+let isConvMode    = false;  // conversation loop active
+let isSpeaking    = false;
+let voiceTranscript = '';
+let selectedVoice   = null;
+let silenceTimer    = null;
+
+const SILENCE_DELAY = 1800; // ms of silence before auto-send
+
+// ── Speech Recognition setup ─────────────────────────
+function initRec() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = 'fr-FR';
+  r.continuous = true;
+  r.interimResults = true;
+  r.maxAlternatives = 1;
+
+  r.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    voiceTranscript += final;
+    const display = (voiceTranscript + interim).trim();
+    setTranscript(display || '…');
+
+    // Reset silence timer on each result
+    clearTimeout(silenceTimer);
+    if (isConvMode && voiceTranscript.trim()) {
+      silenceTimer = setTimeout(() => {
+        if (isListening && voiceTranscript.trim()) autoSendVoice();
+      }, SILENCE_DELAY);
+    }
+    if (voiceTranscript.trim()) {
+      document.getElementById('voiceSendBtn').style.display = 'flex';
+    }
+  };
+
+  r.onerror = (e) => {
+    if (e.error === 'no-speech') return;
+    setVoiceStatus('Erreur micro : ' + e.error, 'idle');
+    stopListening();
+  };
+
+  r.onend = () => {
+    // Restart if still in conversation mode and not speaking
+    if (isListening && !isSpeaking) {
+      try { r.start(); } catch(e) {}
+    }
+  };
+  return r;
+}
+
+// ── Open / Close overlay ─────────────────────────────
+function openVoiceOverlay() {
+  document.getElementById('voiceOverlay').classList.add('show');
+  loadVoices();
+  resetVoiceUI();
+}
+
+function closeVoiceOverlay() {
+  stopConversation();
+  document.getElementById('voiceOverlay').classList.remove('show');
+}
+
+function resetVoiceUI() {
+  voiceTranscript = '';
+  isConvMode = false;
+  setTranscript('Appuyez sur le micro pour parler…');
+  setVoiceStatus('Prêt', 'idle');
+  setOrb('idle');
+  document.getElementById('voiceSendBtn').style.display = 'none';
+  document.getElementById('voiceStopBtn').style.display = 'none';
+  document.getElementById('convToggle').textContent = '🔁 Mode conversation';
+  document.getElementById('convToggle').classList.remove('active');
+}
+
+// ── Listen start / stop ──────────────────────────────
+function startListening() {
+  if (!recognition) recognition = initRec();
+  if (!recognition) {
+    setVoiceStatus('Micro non supporté (utilisez Chrome/Edge)', 'idle');
+    return;
+  }
+  stopSpeaking();
+  voiceTranscript = '';
+  isListening = true;
+  try { recognition.start(); } catch(e) {}
+  setOrb('listening');
+  setVoiceStatus('Je vous écoute…', 'listening');
+  setTranscript('Parlez…');
+  document.getElementById('voiceInputBtn').classList.add('listening');
+  document.getElementById('voiceSendBtn').style.display = 'none';
+}
+
+function stopListening() {
+  isListening = false;
+  clearTimeout(silenceTimer);
+  if (recognition) { try { recognition.stop(); } catch(e) {} }
+  document.getElementById('voiceInputBtn').classList.remove('listening');
+  if (!isSpeaking) setOrb('idle');
+}
+
+function toggleListening() {
+  if (isSpeaking) { stopSpeaking(); return; }
+  if (isListening) stopListening();
+  else startListening();
+}
+
+// ── Conversation mode (auto loop) ────────────────────
+function toggleConvMode() {
+  isConvMode = !isConvMode;
+  const btn = document.getElementById('convToggle');
+  if (isConvMode) {
+    btn.textContent = '⏹ Arrêter la conversation';
+    btn.classList.add('active');
+    setVoiceStatus('Conversation active — parlez !', 'listening');
+    startListening();
+  } else {
+    btn.textContent = '🔁 Mode conversation';
+    btn.classList.remove('active');
+    stopConversation();
+  }
+}
+
+function stopConversation() {
+  isConvMode = false;
+  stopListening();
+  stopSpeaking();
+  clearTimeout(silenceTimer);
+  const btn = document.getElementById('convToggle');
+  if (btn) { btn.textContent = '🔁 Mode conversation'; btn.classList.remove('active'); }
+  setOrb('idle');
+  setVoiceStatus('Prêt', 'idle');
+}
+
+// ── Auto-send after silence ───────────────────────────
+async function autoSendVoice() {
+  const text = voiceTranscript.trim();
+  if (!text) return;
+  stopListening();
+  setVoiceStatus('Envoi…', 'thinking');
+  setOrb('thinking');
+  setTranscript(text);
+  voiceTranscript = '';
+  document.getElementById('voiceSendBtn').style.display = 'none';
+  await sendAndSpeak(text);
+}
+
+// Manual send
+async function sendVoiceMessage() {
+  const text = voiceTranscript.trim();
+  if (!text) return;
+  stopListening();
+  setVoiceStatus('Envoi…', 'thinking');
+  setOrb('thinking');
+  voiceTranscript = '';
+  document.getElementById('voiceSendBtn').style.display = 'none';
+  await sendAndSpeak(text);
+}
+
+// ── Core: send message → speak reply ─────────────────
+async function sendAndSpeak(text) {
+  // Put in input and send
+  document.getElementById('userInput').value = text;
+  // Close overlay temporarily or keep open
+  await sendMsg();
+
+  // Wait for AI response then speak it
+  setVoiceStatus('Chum IA réfléchit…', 'thinking');
+  setOrb('thinking');
+
+  // Poll for the response (sendMsg is async)
+  const waitForReply = () => new Promise(resolve => {
+    const check = setInterval(() => {
+      if (!document.getElementById('sendBtn').disabled) {
+        clearInterval(check);
+        resolve();
+      }
+    }, 100);
+  });
+  await waitForReply();
+
+  // Get last AI message
+  const groups = msgEl.querySelectorAll('.msg-group.ai:not(.typing-msg)');
+  if (!groups.length) { if (isConvMode) startListening(); return; }
+  const lastText = groups[groups.length-1].querySelector('.msg-bubble')?.innerText || '';
+  if (lastText) await speakAndWait(lastText);
+
+  // In conversation mode: start listening again
+  if (isConvMode) {
+    setVoiceStatus('Je vous écoute…', 'listening');
+    setOrb('listening');
+    voiceTranscript = '';
+    setTranscript('Parlez…');
+    startListening();
+  } else {
+    setOrb('idle');
+    setVoiceStatus('Prêt', 'idle');
+  }
+}
+
+// ── TTS ───────────────────────────────────────────────
+function loadVoices() {
+  const sel = document.getElementById('voiceSelect');
+  const populate = () => {
+    const voices = speechSynthesis.getVoices();
+    sel.innerHTML = '';
+    const fr = voices.filter(v => v.lang.startsWith('fr'));
+    const all = [...fr, ...voices.filter(v => !v.lang.startsWith('fr'))];
+    all.forEach((v, i) => {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = v.name + ' (' + v.lang + ')';
+      sel.appendChild(o);
+    });
+    if (fr.length) { sel.value = 0; selectedVoice = fr[0]; }
+  };
+  if (speechSynthesis.getVoices().length) populate();
+  else speechSynthesis.onvoiceschanged = populate;
+}
+
+function updateVoice() {
+  const sel = document.getElementById('voiceSelect');
+  const voices = speechSynthesis.getVoices();
+  const fr = voices.filter(v => v.lang.startsWith('fr'));
+  const all = [...fr, ...voices.filter(v => !v.lang.startsWith('fr'))];
+  selectedVoice = all[parseInt(sel.value)] || null;
+}
+
+function cleanForTTS(text) {
+  return text
+    .replace(/```[\s\S]*?```/g, 'bloc de code.')
+    .replace(/`[^`]+`/g, '')
+    .replace(/#{1,6}\s/g, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[-*+]\s/g, '')
+    .replace(/\n+/g, '. ')
+    .replace(/\n+/g, '. ')
+    .trim();
+}
+
+function speakAndWait(text) {
+  return new Promise(resolve => {
+    stopSpeaking();
+    if (!window.speechSynthesis) { resolve(); return; }
+    const clean = cleanForTTS(text);
+    const utt = new SpeechSynthesisUtterance(clean);
+    utt.lang = 'fr-FR';
+    utt.rate   = parseFloat(document.getElementById('voiceRate')?.value || 1);
+    utt.volume = parseFloat(document.getElementById('voiceVol')?.value || 1);
+    if (selectedVoice) utt.voice = selectedVoice;
+    isSpeaking = true;
+    setOrb('speaking');
+    setVoiceStatus('Chum IA répond…', 'speaking');
+    document.getElementById('voiceStopBtn').style.display = 'flex';
+    utt.onend = utt.onerror = () => {
+      isSpeaking = false;
+      document.getElementById('voiceStopBtn').style.display = 'none';
+      resolve();
+    };
+    speechSynthesis.speak(utt);
+  });
+}
+
+function speakText(text) {
+  speakAndWait(text);
+}
+
+function stopSpeaking() {
+  speechSynthesis.cancel();
+  isSpeaking = false;
+  setOrb(isListening ? 'listening' : 'idle');
+  document.getElementById('voiceStopBtn').style.display = 'none';
+}
+
+function speakLastResponse() {
+  const groups = msgEl.querySelectorAll('.msg-group.ai:not(.typing-msg)');
+  if (!groups.length) return;
+  const text = groups[groups.length-1].querySelector('.msg-bubble')?.innerText || '';
+  if (text) speakAndWait(text);
+}
+
+// ── UI helpers ────────────────────────────────────────
+function setOrb(state) {
+  const orb  = document.getElementById('voiceOrb');
+  const wrap = document.getElementById('voiceOrbWrap');
+  orb.className = 'voice-orb ' + state;
+  wrap.className = 'voice-orb-wrap ' + (state === 'listening' ? 'active' : '');
+  const icons = {
+    idle:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+    listening:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+    speaking: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>',
+    thinking: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  };
+  orb.innerHTML = icons[state] || icons.idle;
+}
+
+function setVoiceStatus(txt, state) {
+  const el = document.getElementById('voiceStatus');
+  if (el) el.textContent = txt;
+  const colors = { listening:'var(--red)', speaking:'var(--green)', thinking:'var(--yellow)', idle:'var(--muted)' };
+  if (el) el.style.color = colors[state] || colors.idle;
+}
+
+function setTranscript(txt) {
+  const el = document.getElementById('voiceTranscript');
+  if (el) { el.textContent = txt; el.classList.toggle('active', txt !== 'Parlez…' && txt !== 'Appuyez sur le micro pour parler…'); }
+}
+
+// ── Add TTS button to AI messages ────────────────────
+const _origRenderMsg = renderMsg;
+window.renderMsg = function(role, content, animate=true) {
+  const g = _origRenderMsg(role, content, animate);
+  if (role !== 'user' && g) {
+    const actions = g.querySelector('.msg-actions');
+    if (actions) {
+      const btn = document.createElement('button');
+      btn.className = 'tts-btn msg-act-btn';
+      const iconPlay = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter`;
+      const iconStop = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Arrêter`;
+      btn.innerHTML = iconPlay;
+      btn.onclick = () => {
+        if (btn.classList.contains('playing')) {
+          stopSpeaking();
+          btn.classList.remove('playing'); btn.innerHTML = iconPlay;
+        } else {
+          document.querySelectorAll('.tts-btn').forEach(b => { b.classList.remove('playing'); b.innerHTML = iconPlay; });
+          btn.classList.add('playing'); btn.innerHTML = iconStop;
+          const text = g.querySelector('.msg-bubble')?.innerText || '';
+          speakAndWait(text).then(() => { btn.classList.remove('playing'); btn.innerHTML = iconPlay; });
+        }
+      };
+      actions.appendChild(btn);
+    }
+  }
+  return g;
+};
+
+// Escape key closes overlay
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeVoiceOverlay(); });
+if (window.speechSynthesis) speechSynthesis.getVoices();
 </script>
+
+<!-- ═══════════════════ VOICE OVERLAY ═══════════════════ -->
+<div class="voice-overlay" id="voiceOverlay">
+
+  <!-- Orb + rings -->
+  <div class="voice-orb-wrap" id="voiceOrbWrap">
+    <div class="voice-orb-ring"></div>
+    <div class="voice-orb-ring"></div>
+    <div class="voice-orb-ring"></div>
+    <div class="voice-orb idle" id="voiceOrb" onclick="toggleListening()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Waveform -->
+  <div class="waveform" id="waveform">
+    <div class="wf-bar"></div><div class="wf-bar"></div><div class="wf-bar"></div>
+    <div class="wf-bar"></div><div class="wf-bar"></div><div class="wf-bar"></div>
+    <div class="wf-bar"></div>
+  </div>
+
+  <!-- Status + transcript -->
+  <div class="voice-status" id="voiceStatus">Prêt</div>
+  <div class="voice-transcript" id="voiceTranscript">Appuyez sur le micro pour parler…</div>
+
+  <!-- Voice settings -->
+  <div class="voice-settings-row">
+    <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600">Voix</span>
+    <select class="voice-sl" id="voiceSelect" onchange="updateVoice()"></select>
+    <span style="font-size:11px;color:var(--muted)">Vitesse</span>
+    <input type="range" class="voice-range" id="voiceRate" min="0.5" max="2" step="0.1" value="1" oninput="updateVoice()"/>
+    <span style="font-size:11px;color:var(--muted)">Volume</span>
+    <input type="range" class="voice-range" id="voiceVol" min="0" max="1" step="0.05" value="1" oninput="updateVoice()"/>
+  </div>
+
+  <!-- Controls -->
+  <div class="voice-controls">
+    <button class="voice-ctrl-btn" onclick="closeVoiceOverlay()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Fermer
+    </button>
+    <button class="voice-ctrl-btn" id="voiceSendBtn" onclick="sendVoiceMessage()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Envoyer
+    </button>
+    <button class="voice-ctrl-btn" id="voiceStopBtn" onclick="stopSpeaking()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      Arrêter
+    </button>
+    <button class="voice-ctrl-btn" id="convToggle" onclick="toggleConvMode()">
+      🔁 Mode conversation
+    </button>
+  </div>
+
+  <div style="font-size:11px;color:var(--muted2);text-align:center;max-width:380px;line-height:1.8">
+    💡 <strong style="color:var(--muted)">Mode conversation</strong> : parlez → Chum IA répond → reprend l'écoute automatiquement
+  </div>
+</div>
+
+
 </body>
 </html>
