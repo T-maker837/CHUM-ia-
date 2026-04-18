@@ -683,9 +683,198 @@ body::after{
 .pro-badge.show { display: flex; }
 .pro-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--purple2); animation: pulse 2s ease-in-out infinite; }
 
+
+/* ══ LOGIN PAGE ══ */
+.login-page {
+  position: fixed; inset: 0; z-index: 99999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+}
+.login-page.out {
+  animation: loginOut .45s cubic-bezier(.4,0,.2,1) forwards;
+  pointer-events: none;
+}
+@keyframes loginOut {
+  to { opacity: 0; transform: scale(1.04) translateY(-8px); }
+}
+
+.login-card {
+  width: 100%; max-width: 420px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 28px; padding: 24px;
+  animation: fadeUp .6s cubic-bezier(.2,0,.2,1) forwards;
+}
+
+.login-orb {
+  width: 80px; height: 80px; border-radius: 24px;
+  background: linear-gradient(135deg, var(--green) 0%, var(--blue) 50%, var(--purple) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--head); font-weight: 900; font-size: 34px; color: #07080d;
+  box-shadow: 0 0 60px rgba(0,229,160,.3), 0 0 120px rgba(0,229,160,.08);
+  position: relative; overflow: hidden;
+  animation: orbFloat 5s ease-in-out infinite;
+}
+.login-orb::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.28) 0%, transparent 60%);
+}
+
+.login-head { text-align: center; }
+.login-head h1 {
+  font-family: var(--head); font-size: 28px; font-weight: 900; letter-spacing: -.6px;
+  background: linear-gradient(135deg, var(--text) 0%, var(--green) 55%, var(--blue) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.login-head p { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+.login-form {
+  width: 100%; display: flex; flex-direction: column; gap: 12px;
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 24px;
+}
+
+.login-field { display: flex; flex-direction: column; gap: 6px; }
+.login-label {
+  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); font-weight: 600;
+}
+.login-input {
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 11px 14px;
+  font-family: var(--mono); font-size: 13.5px; color: var(--text);
+  outline: none; transition: border-color .2s, box-shadow .2s; width: 100%;
+}
+.login-input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,229,160,.08);
+}
+.login-input.shake { animation: loginShake .35s ease; border-color: var(--red) !important; }
+@keyframes loginShake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-7px); }
+  40%,80%  { transform: translateX(7px); }
+}
+
+.login-btn {
+  width: 100%; background: linear-gradient(135deg, var(--green), var(--blue));
+  color: #07080d; border: none; border-radius: var(--r2);
+  padding: 13px; font-family: var(--mono); font-size: 13.5px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+  box-shadow: 0 4px 20px rgba(0,229,160,.22); margin-top: 4px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.login-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,229,160,.38); }
+.login-btn:active { transform: scale(.97); }
+.login-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.login-btn svg { width: 16px; height: 16px; }
+
+.login-err {
+  font-size: 12px; color: var(--red); text-align: center;
+  opacity: 0; transition: opacity .2s; min-height: 18px;
+}
+.login-err.show { opacity: 1; }
+
+.login-sep {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--muted2); font-size: 11px;
+}
+.login-sep::before, .login-sep::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.login-guest-btn {
+  width: 100%; background: none; border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 11px;
+  font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+  cursor: pointer; transition: all .2s;
+}
+.login-guest-btn:hover { border-color: var(--border2); color: var(--text2); background: var(--s2); }
+
+.login-footer {
+  font-size: 11px; color: var(--muted2); text-align: center; line-height: 1.8;
+}
+
 </style>
 </head>
 <body>
+
+<!-- ══ LOGIN PAGE ══ -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+
+    <div class="login-orb">C</div>
+
+    <div class="login-head">
+      <h1>Chum IA</h1>
+      <p>Connectez-vous pour continuer</p>
+    </div>
+
+    <div class="login-form">
+      <div class="login-field">
+        <label class="login-label">Identifiant</label>
+        <input
+          id="loginUser"
+          class="login-input"
+          type="text"
+          placeholder="Votre identifiant…"
+          autocomplete="username"
+          onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()"
+          oninput="loginClearErr()"
+        />
+      </div>
+      <div class="login-field">
+        <label class="login-label">Mot de passe</label>
+        <div style="position:relative">
+          <input
+            id="loginPass"
+            class="login-input"
+            type="password"
+            placeholder="Votre mot de passe…"
+            autocomplete="current-password"
+            style="padding-right:44px"
+            onkeydown="if(event.key==='Enter')doLogin()"
+            oninput="loginClearErr()"
+          />
+          <button
+            onclick="toggleLoginPass()"
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex"
+            title="Afficher/masquer"
+          >
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="login-err" id="loginErr">Identifiant ou mot de passe incorrect</div>
+
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Se connecter
+      </button>
+
+      <div class="login-sep">ou</div>
+
+      <button class="login-guest-btn" onclick="loginAsGuest()">
+        Continuer en tant qu'invité
+      </button>
+    </div>
+
+    <div class="login-footer">
+      Chum IA v4.0 · Vos données restent locales<br>
+      <span style="color:var(--muted2)">Aucun serveur tiers ne stocke vos conversations</span>
+    </div>
+
+  </div>
+</div>
+
 <div class="app" style="display:flex;flex-direction:row;height:100vh;overflow:hidden">
 
 <!-- ══════════════ SIDEBAR ══════════════ -->
@@ -1089,6 +1278,98 @@ console.log('Fibonacci(10) =', fib(10));"></textarea>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script>
 
+// ══ LOGIN ════════════════════════════════════════════
+// Comptes : { user: reversedPassword }
+const _ACCOUNTS = {
+  "admin":  "nimdA321",   // admin / 123Admin (inversé)
+  "chum":   "aIlortnoC", // chum / ControliA (inversé)
+};
+// Pour ajouter un compte : "username": "drowssapesrevni"
+// (mot de passe inversé avec .split("").reverse().join(""))
+
+let isGuest = false;
+
+function doLogin() {
+  const user = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value;
+  if (!user || !pass) {
+    showLoginErr("Veuillez remplir tous les champs");
+    return;
+  }
+  const expected = _ACCOUNTS[user.toLowerCase()];
+  const passRev = pass.split("").reverse().join("");
+  if (expected && passRev === expected) {
+    // Success
+    isGuest = false;
+    sessionStorage.setItem("chum_user", user);
+    loginSuccess(user);
+  } else {
+    showLoginErr("Identifiant ou mot de passe incorrect");
+    shakeInput("loginUser");
+    shakeInput("loginPass");
+    document.getElementById("loginPass").value = "";
+  }
+}
+
+function loginAsGuest() {
+  isGuest = true;
+  sessionStorage.setItem("chum_user", "invité");
+  loginSuccess("invité");
+}
+
+function loginSuccess(user) {
+  const page = document.getElementById("loginPage");
+  page.classList.add("out");
+  setTimeout(() => {
+    page.remove();
+    // Update welcome message with username
+    const h1 = document.querySelector(".welcome h1");
+    if (h1 && user !== "invité") {
+      h1.innerHTML = h1.innerHTML.replace("Bonjour, je suis", `Bonjour <span style="color:var(--green)">${esc(user)}</span>, je suis`);
+    }
+    // Show guest notice if needed
+    if (isGuest) {
+      const sub = document.querySelector(".welcome p");
+      if (sub) sub.textContent = "Mode invité — toutes les fonctionnalités sont disponibles. Connectez-vous pour sauvegarder vos conversations.";
+    }
+  }, 460);
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById("loginErr");
+  el.textContent = msg;
+  el.classList.add("show");
+}
+function loginClearErr() {
+  document.getElementById("loginErr")?.classList.remove("show");
+}
+function shakeInput(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove("shake");
+  void el.offsetWidth; // reflow
+  el.classList.add("shake");
+  setTimeout(() => el.classList.remove("shake"), 400);
+}
+function toggleLoginPass() {
+  const inp = document.getElementById("loginPass");
+  const ico = document.getElementById("eyeIcon");
+  if (inp.type === "password") {
+    inp.type = "text";
+    ico.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+  } else {
+    inp.type = "password";
+    ico.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  }
+}
+
+// Check if already logged in this session
+if (sessionStorage.getItem("chum_user")) {
+  loginSuccess(sessionStorage.getItem("chum_user"));
+}
+// ══ END LOGIN ═════════════════════════════════════════
+
+
 // ══ PRO MODE ═════════════════════════════════════════
 const _PASS_R = "80161600080409";
 const _PASS   = _PASS_R.split("").reverse().join("");
@@ -1171,7 +1452,7 @@ function activatePro() {
 // ════════════════════════════════════════════════════
 // 🔑 CLÉ API — inversée pour obfuscation
 // Console (F12) → "gsk_VOTRE_CLE".split("").reverse().join("")
-const API_KEY_REV = "8d1j9futv7NpdvPChQ6iheruYF3bydGW8VUGlUnnvQHrD5413JcE_ksg";
+const API_KEY_REV = "ICI_VOTRE_CLE_INVERSEE";
 const API_KEY = API_KEY_REV.split("").reverse().join("");
 // ════════════════════════════════════════════════════
 
