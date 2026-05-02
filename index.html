@@ -914,6 +914,12 @@ body::after{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span>Paramètres</span>
     </button>
+    <button class="nav-item" id="nav-admin" onclick="showPanel('admin')" style="display:none">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>
+  </svg>
+  <span>Admin</span>
+</button>
     <button class="nav-item" id="nav-about" onclick="showPanel('about')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span>À propos</span>
@@ -1205,7 +1211,36 @@ console.log('Fibonacci(10) =', fib(10));"></textarea>
 <button class="save-btn" onclick="saveSettings()">✓ Sauvegarder</button>
     </div>
   </div>
+<!-- ADMIN PANEL -->
+<div class="panel" id="panel-admin">
+  <div class="settings-wrap">
 
+    <div class="panel-head" style="margin-bottom:24px">
+      <h2 style="color:var(--text)">Panel <em style="color:var(--red)">Admin</em></h2>
+      <p style="color:var(--muted)">Gestion complète des utilisateurs</p>
+    </div>
+
+    <div class="sg">
+      <div class="sg-title">Ajouter utilisateur</div>
+
+      <div class="s-row">
+        <input id="newUser" class="login-input" placeholder="Nom utilisateur">
+      </div>
+
+      <div class="s-row">
+        <input id="newPass" class="login-input" placeholder="Mot de passe">
+      </div>
+
+      <button class="save-btn" onclick="adminAddUser()">➕ Ajouter</button>
+    </div>
+
+    <div class="sg">
+      <div class="sg-title">Utilisateurs</div>
+      <div id="adminUsers"></div>
+    </div>
+
+  </div>
+</div>
   <!-- ABOUT panel -->
   <div class="panel" id="panel-about">
     <div class="about-wrap">
@@ -1280,10 +1315,10 @@ console.log('Fibonacci(10) =', fib(10));"></textarea>
 
 // ══ LOGIN ════════════════════════════════════════════
 // Comptes : { user: reversedPassword }
-const _ACCOUNTS = {
-  "admin":  "nimdA321",   // admin / 
-  "chum":   "aIlortnoC", // chum /
-  "boris":  "321étivni", // boris / 
+let _ACCOUNTS = JSON.parse(localStorage.getItem("admin_accounts")) || {
+  "admin":"nimdA321",
+  "chum":"aIlortnoC",
+  "boris":"321étivni"
 };
 // Pour ajouter un compte : "username": "drowssapesrevni" 
 // (mot de passe inversé avec .split("").reverse().join(""))
@@ -1318,7 +1353,11 @@ function loginAsGuest() {
   loginSuccess("invité");
 }
 
-function loginSuccess(user) {
+function loginSuccess(user) { 
+  if(user.toLowerCase() === "admin"){
+   document.getElementById("nav-admin").style.display="flex";
+   renderAdminUsers();
+}
   const page = document.getElementById("loginPage");
   page.classList.add("out");
   setTimeout(() => {
@@ -1453,7 +1492,7 @@ function activatePro() {
 // ════════════════════════════════════════════════════
 // 🔑 CLÉ API — inversée pour obfuscation
 // Console (F12) → "gsk_VOTRE_CLE".split("").reverse().join("")
-const API_KEY_REV = "8d1j9futv7NpdvPChQ6iheruYF3bydGW8VUGlUnnvQHrD5413JcE_ksg";
+const API_KEY_REV = "ICI_VOTRE_CLE_INVERSEE";
 const API_KEY = API_KEY_REV.split("").reverse().join("");
 // ════════════════════════════════════════════════════
 
@@ -2288,6 +2327,78 @@ document.addEventListener('keydown', e => {
 
 // ── Init TTS voices ───────────────────────────────────
 if (window.speechSynthesis) speechSynthesis.getVoices();
+
+function saveAccounts(){
+   localStorage.setItem("admin_accounts", JSON.stringify(_ACCOUNTS));
+}
+
+function renderAdminUsers(){
+   const box = document.getElementById("adminUsers");
+   if(!box) return;
+
+   box.innerHTML = "";
+
+   for(let user in _ACCOUNTS){
+
+      const row = document.createElement("div");
+      row.className = "s-row";
+
+      row.innerHTML = `
+        <div>
+          <div class="srl">${user}</div>
+          <div class="srd">${_ACCOUNTS[user].restricted ? "Restreint" : "Actif"}</div>
+        </div>
+
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+
+          <button class="tl-btn" onclick="adminPro('${user}')">⭐ PRO</button>
+
+          <button class="tl-btn" onclick="adminRestrict('${user}')">🚫</button>
+
+          ${
+            user !== "admin"
+            ? `<button class="tl-btn" onclick="adminDelete('${user}')">🗑</button>`
+            : ""
+          }
+
+        </div>
+      `;
+
+      box.appendChild(row);
+   }
+}
+
+function adminAddUser(){
+   const u = document.getElementById("newUser").value.trim().toLowerCase();
+   const p = document.getElementById("newPass").value.trim();
+
+   if(!u || !p) return alert("Champs requis");
+
+   _ACCOUNTS[u] = p.split("").reverse().join("");
+   saveAccounts();
+   renderAdminUsers();
+
+   document.getElementById("newUser").value="";
+   document.getElementById("newPass").value="";
+}
+
+function adminDelete(user){
+   if(confirm("Supprimer "+user+" ?")){
+      delete _ACCOUNTS[user];
+      saveAccounts();
+      renderAdminUsers();
+   }
+}
+
+function adminRestrict(user){
+   _ACCOUNTS[user] = {restricted:true};
+   saveAccounts();
+   renderAdminUsers();
+}
+
+function adminPro(user){
+   alert(user + " est maintenant PRO");
+}
 </script>
 </body>
 </html>
