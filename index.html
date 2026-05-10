@@ -795,113 +795,6 @@ body::after{
   font-size: 11px; color: var(--muted2); text-align: center; line-height: 1.8;
 }
 
-
-/* ══ ADMIN PANEL ══ */
-.admin-overlay {
-  position: fixed; inset: 0; z-index: 5000;
-  background: rgba(7,8,13,.92); backdrop-filter: blur(16px);
-  display: none; align-items: center; justify-content: center;
-}
-.admin-overlay.show { display: flex; animation: fadeUp .25s ease; }
-.admin-modal {
-  width: min(700px, 96vw); max-height: 88vh;
-  background: var(--s1); border: 1px solid var(--border);
-  border-radius: var(--r); display: flex; flex-direction: column;
-  box-shadow: var(--shadow); overflow: hidden;
-  animation: fadeUp .3s cubic-bezier(.2,0,.2,1);
-}
-.admin-hdr {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-  background: var(--s0); flex-shrink: 0;
-}
-.admin-title { font-family: var(--head); font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-.admin-title em { color: var(--purple2); font-style: normal; }
-.admin-badge { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; background: rgba(155,89,255,.12); border: 1px solid rgba(155,89,255,.3); border-radius: 100px; padding: 3px 9px; color: var(--purple2); font-weight: 600; }
-.admin-close { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px; cursor: pointer; color: var(--muted); transition: all .15s; display: flex; }
-.admin-close:hover { border-color: var(--red); color: var(--red); }
-.admin-close svg { width: 14px; height: 14px; }
-.admin-body { flex: 1; overflow-y: auto; padding: 18px 20px; display: flex; flex-direction: column; gap: 18px; }
-.admin-body::-webkit-scrollbar { width: 3px; }
-.admin-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-.admin-section-lbl { font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
-.admin-add-form { background: var(--s2); border: 1px solid var(--border); border-radius: var(--r2); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-.admin-form-lbl { font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--green); font-weight: 600; }
-.admin-form-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.admin-inp { flex: 1; min-width: 110px; background: var(--s1); border: 1px solid var(--border); border-radius: var(--r3); padding: 8px 12px; font-family: var(--mono); font-size: 12.5px; color: var(--text); outline: none; transition: border-color .2s; }
-.admin-inp:focus { border-color: var(--green); }
-.admin-inp::placeholder { color: var(--muted); }
-.admin-pro-tog { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); white-space: nowrap; }
-.admin-add-btn { display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg,var(--green),var(--blue)); color: #07080d; border: none; border-radius: var(--r3); padding: 8px 15px; font-family: var(--mono); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; white-space: nowrap; }
-.admin-add-btn:hover { transform: translateY(-1px); }
-.admin-add-btn svg { width: 12px; height: 12px; }
-.admin-form-err { font-size: 11.5px; color: var(--red); min-height: 16px; }
-.admin-list-hdr { display: flex; align-items: center; justify-content: space-between; }
-.admin-btns { display: flex; gap: 6px; }
-.admin-sm-btn { display: flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: pointer; transition: all .15s; }
-.admin-sm-btn:hover { border-color: var(--blue); color: var(--blue2); }
-.admin-sm-btn svg { width: 11px; height: 11px; }
-.admin-table { display: flex; flex-direction: column; gap: 6px; }
-.admin-row { display: flex; align-items: center; gap: 10px; background: var(--s2); border: 1px solid var(--border); border-radius: var(--r2); padding: 10px 13px; transition: border-color .15s; }
-.admin-row:hover { border-color: var(--border2); }
-.admin-row.is-pro { border-left: 3px solid rgba(155,89,255,.5); }
-.admin-row.is-admin { background: rgba(0,229,160,.03); border-color: rgba(0,229,160,.15); }
-.a-av { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; background: var(--s3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: var(--head); font-weight: 700; font-size: 14px; color: var(--muted); }
-.a-av.pro { background: rgba(155,89,255,.15); color: var(--purple2); border-color: rgba(155,89,255,.3); }
-.a-av.adm { background: rgba(0,229,160,.12); color: var(--green); border-color: rgba(0,229,160,.25); }
-.a-info { flex: 1; min-width: 0; }
-.a-name { font-size: 13px; color: var(--text); font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.a-tag { font-size: 8.5px; letter-spacing: 1px; text-transform: uppercase; border-radius: 100px; padding: 2px 7px; font-weight: 700; }
-.a-tag.adm { background: rgba(0,229,160,.1); color: var(--green); border: 1px solid rgba(0,229,160,.2); }
-.a-tag.pro { background: rgba(155,89,255,.1); color: var(--purple2); border: 1px solid rgba(155,89,255,.2); }
-.a-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.a-acts { display: flex; gap: 5px; flex-shrink: 0; }
-.a-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
-.a-btn:hover { background: var(--s3); color: var(--text2); border-color: var(--border2); }
-.a-btn.pro-on { border-color: rgba(155,89,255,.35); color: var(--purple2); background: rgba(155,89,255,.07); }
-.a-btn.pro-on:hover { background: rgba(155,89,255,.14); }
-.a-btn.del:hover { border-color: var(--red); color: var(--red); background: rgba(255,79,106,.06); }
-.a-btn svg { width: 11px; height: 11px; }
-.admin-empty { text-align: center; padding: 28px; color: var(--muted); font-size: 13px; }
-
-
-/* ══ GITHUB CONFIG ══ */
-.gh-config-bar {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 14px; background: rgba(79,124,255,.06);
-  border-bottom: 1px solid rgba(79,124,255,.15);
-  font-size: 11px; color: var(--blue2); flex-shrink: 0;
-}
-.gh-config-bar svg { width: 13px; height: 13px; flex-shrink: 0; }
-.gh-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted2); flex-shrink: 0; transition: background .3s; }
-.gh-status-dot.ok  { background: var(--green); box-shadow: 0 0 6px var(--green); }
-.gh-status-dot.err { background: var(--red); }
-.gh-status-dot.loading { background: var(--yellow); animation: pulse 1s ease-in-out infinite; }
-.gh-setup-btn { background: none; border: 1px solid rgba(79,124,255,.3); border-radius: 6px; padding: 3px 9px; font-family: var(--mono); font-size: 10.5px; color: var(--blue2); cursor: pointer; transition: all .15s; white-space: nowrap; }
-.gh-setup-btn:hover { background: rgba(79,124,255,.1); }
-
-/* GitHub setup modal */
-.gh-modal-overlay { position: fixed; inset: 0; z-index: 6000; background: rgba(7,8,13,.88); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; }
-.gh-modal-overlay.show { display: flex; animation: fadeUp .2s ease; }
-.gh-modal { width: min(480px, 95vw); background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); padding: 24px; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow); animation: fadeUp .3s ease; }
-.gh-modal h3 { font-family: var(--head); font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-.gh-modal h3 em { color: var(--blue2); font-style: normal; }
-.gh-modal p { font-size: 12px; color: var(--muted); line-height: 1.8; }
-.gh-modal p a { color: var(--blue); }
-.gh-field { display: flex; flex-direction: column; gap: 6px; }
-.gh-field label { font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-.gh-field input { background: var(--s2); border: 1px solid var(--border); border-radius: var(--r3); padding: 9px 13px; font-family: var(--mono); font-size: 12.5px; color: var(--text); outline: none; transition: border-color .2s; }
-.gh-field input:focus { border-color: var(--blue); }
-.gh-field input::placeholder { color: var(--muted); }
-.gh-modal-btns { display: flex; gap: 8px; }
-.gh-save-btn { flex: 1; background: linear-gradient(135deg, var(--blue), var(--purple)); color: #fff; border: none; border-radius: var(--r3); padding: 10px; font-family: var(--mono); font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all .2s; }
-.gh-save-btn:hover { transform: translateY(-1px); }
-.gh-cancel-btn { background: none; border: 1px solid var(--border); border-radius: var(--r3); padding: 10px 16px; font-family: var(--mono); font-size: 12px; color: var(--muted); cursor: pointer; transition: all .15s; }
-.gh-cancel-btn:hover { border-color: var(--border2); color: var(--text2); }
-.gh-err { font-size: 11.5px; color: var(--red); min-height: 16px; }
-.gh-note { font-size: 11px; color: var(--muted2); background: var(--s2); border: 1px solid var(--border); border-radius: var(--r3); padding: 10px 13px; line-height: 1.75; }
-.gh-note code { color: var(--yellow); font-family: var(--mono); }
-
 </style>
 </head>
 <body>
@@ -1021,6 +914,12 @@ body::after{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span>Paramètres</span>
     </button>
+    <button class="nav-item" id="nav-admin" onclick="showPanel('admin')" style="display:none">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>
+  </svg>
+  <span>Admin</span>
+</button>
     <button class="nav-item" id="nav-about" onclick="showPanel('about')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span>À propos</span>
@@ -1312,7 +1211,36 @@ console.log('Fibonacci(10) =', fib(10));"></textarea>
 <button class="save-btn" onclick="saveSettings()">✓ Sauvegarder</button>
     </div>
   </div>
+<!-- ADMIN PANEL -->
+<div class="panel" id="panel-admin">
+  <div class="settings-wrap">
 
+    <div class="panel-head" style="margin-bottom:24px">
+      <h2 style="color:var(--text)">Panel <em style="color:var(--red)">Admin</em></h2>
+      <p style="color:var(--muted)">Gestion complète des utilisateurs</p>
+    </div>
+
+    <div class="sg">
+      <div class="sg-title">Ajouter utilisateur</div>
+
+      <div class="s-row">
+        <input id="newUser" class="login-input" placeholder="Nom utilisateur">
+      </div>
+
+      <div class="s-row">
+        <input id="newPass" class="login-input" placeholder="Mot de passe">
+      </div>
+
+      <button class="save-btn" onclick="adminAddUser()">➕ Ajouter</button>
+    </div>
+
+    <div class="sg">
+      <div class="sg-title">Utilisateurs</div>
+      <div id="adminUsers"></div>
+    </div>
+
+  </div>
+</div>
   <!-- ABOUT panel -->
   <div class="panel" id="panel-about">
     <div class="about-wrap">
@@ -1385,383 +1313,101 @@ console.log('Fibonacci(10) =', fib(10));"></textarea>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script>
 
-// ══ ACCOUNTS & LOGIN ═════════════════════════════════
-const ACCTS_KEY = "chum_accounts_v1";
-let curUser = null, curData = null;
+// ══ LOGIN ════════════════════════════════════════════
+// Comptes : { user: reversedPassword }
+let _ACCOUNTS = JSON.parse(localStorage.getItem("admin_accounts")) || {
+  "admin":"nimdA321",
+  "chum":"aIlortnoC",
+  "boris":"321étivni"
+};
+// Pour ajouter un compte : "username": "drowssapesrevni" 
+// (mot de passe inversé avec .split("").reverse().join(""))
 
-function getAccts() { return JSON.parse(localStorage.getItem(ACCTS_KEY) || "{}"); }
-function saveAccts(a) { localStorage.setItem(ACCTS_KEY, JSON.stringify(a)); }
-
-function initAccounts() {
-  if (!localStorage.getItem(ACCTS_KEY)) {
-    saveAccts({
-      "admin": { pass: btoa("ChumAdmin2024!"), pro: true,  role: "admin", createdAt: Date.now() },
-      "chum":  { pass: btoa("ControliA"),      pro: false, role: "user",  createdAt: Date.now() }
-    });
-  }
-}
+let isGuest = false;
 
 function doLogin() {
-  const uEl = document.getElementById("loginUser");
-  const pEl = document.getElementById("loginPass");
-  const u = uEl ? uEl.value.trim().toLowerCase() : "";
-  const p = pEl ? pEl.value : "";
-  if (!u || !p) { showLoginErr("Veuillez remplir tous les champs"); return; }
-  const accts = getAccts();
-  const acct  = accts[u];
-  if (!acct || atob(acct.pass) !== p) {
-    showLoginErr("Identifiant ou mot de passe incorrect");
-    shakeInput("loginUser"); shakeInput("loginPass");
-    if (pEl) pEl.value = "";
+  const user = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value;
+  if (!user || !pass) {
+    showLoginErr("Veuillez remplir tous les champs");
     return;
   }
-  curUser = u; curData = acct;
-  sessionStorage.setItem("chum_sess", JSON.stringify({ u, role: acct.role, pro: acct.pro }));
-  onLoginSuccess(u, acct);
+  const expected = _ACCOUNTS[user.toLowerCase()];
+  const passRev = pass.split("").reverse().join("");
+  if (expected && passRev === expected) {
+    // Success
+    isGuest = false;
+    sessionStorage.setItem("chum_user", user);
+    loginSuccess(user);
+  } else {
+    showLoginErr("Identifiant ou mot de passe incorrect");
+    shakeInput("loginUser");
+    shakeInput("loginPass");
+    document.getElementById("loginPass").value = "";
+  }
 }
 
 function loginAsGuest() {
-  curUser = "invité"; curData = { pro: false, role: "guest" };
-  sessionStorage.setItem("chum_sess", JSON.stringify({ u: "invité", role: "guest", pro: false }));
-  onLoginSuccess("invité", curData);
+  isGuest = true;
+  sessionStorage.setItem("chum_user", "invité");
+  loginSuccess("invité");
 }
 
-function onLoginSuccess(u, acct) {
+function loginSuccess(user) { 
+  if(user.toLowerCase() === "admin"){
+   document.getElementById("nav-admin").style.display="flex";
+   renderAdminUsers();
+}
   const page = document.getElementById("loginPage");
-  if (page) { page.classList.add("out"); setTimeout(() => page.remove(), 460); }
-  if (acct.role === "admin") {
-    const nb = document.getElementById("nb-admin");
-    if (nb) nb.style.display = "";
-  }
-  if (acct.pro) setTimeout(() => activatePro(), 600);
+  page.classList.add("out");
   setTimeout(() => {
+    page.remove();
+    // Update welcome message with username
     const h1 = document.querySelector(".welcome h1");
-    if (h1 && u !== "invité") {
-      const cap = u.charAt(0).toUpperCase() + u.slice(1);
-      h1.innerHTML = "Bonjour " + cap + " 👋";
+    if (h1 && user !== "invité") {
+      h1.innerHTML = h1.innerHTML.replace("Bonjour, je suis", `Bonjour <span style="color:var(--green)">${esc(user)}</span>, je suis`);
     }
-  }, 500);
+    // Show guest notice if needed
+    if (isGuest) {
+      const sub = document.querySelector(".welcome p");
+      if (sub) sub.textContent = "Mode invité — toutes les fonctionnalités sont disponibles. Connectez-vous pour sauvegarder vos conversations.";
+    }
+  }, 460);
 }
 
-// ── Admin panel ───────────────────────────────────────
-function openAdmin() {
-  document.getElementById("adminOverlay").classList.add("show");
-  renderATable();
-}
-function closeAdmin() {
-  document.getElementById("adminOverlay").classList.remove("show");
-}
-function renderATable() {
-  const accts = getAccts();
-  const keys  = Object.keys(accts);
-  document.getElementById("aCount").textContent = keys.length;
-  const tbl = document.getElementById("aTable");
-  if (!keys.length) { tbl.innerHTML = "<div class='admin-empty'>Aucun compte</div>"; return; }
-  tbl.innerHTML = keys.map(u => {
-    const a    = accts[u];
-    const isAdm = a.role === "admin";
-    const isPro = a.pro;
-    const init  = u.charAt(0).toUpperCase();
-    const date  = new Date(a.createdAt).toLocaleDateString("fr-FR");
-    return `
-      <div class="admin-row ${isAdm ? "is-admin" : ""} ${isPro ? "is-pro" : ""}">
-        <div class="a-av ${isPro ? "pro" : ""} ${isAdm ? "adm" : ""}">${init}</div>
-        <div class="a-info">
-          <div class="a-name">
-            ${esc(u)}
-            ${isAdm ? "<span class='a-tag adm'>Admin</span>" : ""}
-            ${isPro  ? "<span class='a-tag pro'>PRO &#x2726;</span>" : ""}
-          </div>
-          <div class="a-meta">Cr&eacute;&eacute; le ${date}</div>
-        </div>
-        <div class="a-acts">
-          <button class="a-btn ${isPro ? "pro-on" : ""}" onclick="aTogglePro('${u}')">
-            <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>
-            ${isPro ? "PRO actif" : "Mettre PRO"}
-          </button>
-          ${!isAdm ? `<button class="a-btn del" onclick="aDel('${u}')">
-            <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14H6L5 6'/></svg>
-            Supprimer
-          </button>` : ""}
-        </div>
-      </div>`;
-  }).join("");
-}
-
-function aAddAccount() {
-  const u   = document.getElementById("aNUser").value.trim().toLowerCase();
-  const p   = document.getElementById("aNPass").value;
-  const pro = document.getElementById("aNPro").checked;
-  const err = document.getElementById("aErr");
-  if (!u) { err.textContent = "Identifiant requis"; return; }
-  if (!/^[a-z0-9_]{2,32}$/.test(u)) { err.textContent = "Identifiant : 2-32 car., lettres/chiffres/_"; return; }
-  if (!p || p.length < 4) { err.textContent = "Mot de passe trop court (min. 4 car.)"; return; }
-  const accts = getAccts();
-  if (accts[u]) { err.textContent = "Ce compte existe d\u00e9j\u00e0"; return; }
-  accts[u] = { pass: btoa(p), pro, role: "user", createdAt: Date.now() };
-  saveAccts(accts); err.textContent = "";
-  document.getElementById("aNUser").value = "";
-  document.getElementById("aNPass").value = "";
-  document.getElementById("aNPro").checked = false;
-  renderATable();
-  const btn = document.getElementById("aAddBtn");
-  const orig = btn.innerHTML;
-  btn.textContent = "\u2713 Ajout\u00e9 !";
-  setTimeout(() => { btn.innerHTML = orig; }, 1400);
-}
-
-function aDel(u) {
-  if (u === curUser) { alert("Impossible de supprimer votre propre compte."); return; }
-  if (!confirm("Supprimer \"" + u + "\" ? Action irr\u00e9versible.")) return;
-  const accts = getAccts();
-  delete accts[u]; saveAccts(accts); renderATable();
-}
-
-function aTogglePro(u) {
-  const accts = getAccts();
-  if (!accts[u]) return;
-  accts[u].pro = !accts[u].pro;
-  saveAccts(accts); renderATable();
-}
-
-function aClearErr() { document.getElementById("aErr").textContent = ""; }
-
-function aExport() {
-  const blob = new Blob([JSON.stringify(getAccts(), null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "accounts.json"; a.click();
-}
-
-function aImport(input) {
-  const file = input.files[0]; if (!file) return;
-  const r = new FileReader();
-  r.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (typeof data !== "object") throw new Error("Format invalide");
-      const accts = getAccts();
-      Object.keys(data).forEach(u => { if (u !== "admin") accts[u] = data[u]; });
-      saveAccts(accts); renderATable();
-      alert("\u2713 Import r\u00e9ussi : " + Object.keys(data).length + " compte(s)");
-    } catch(e) { alert("Erreur JSON : " + e.message); }
-  };
-  r.readAsText(file); input.value = "";
-}
-
-// ── Login UI helpers ──────────────────────────────────
 function showLoginErr(msg) {
   const el = document.getElementById("loginErr");
-  if (el) { el.textContent = msg; el.classList.add("show"); }
+  el.textContent = msg;
+  el.classList.add("show");
 }
-function loginClearErr() { document.getElementById("loginErr")?.classList.remove("show"); }
+function loginClearErr() {
+  document.getElementById("loginErr")?.classList.remove("show");
+}
 function shakeInput(id) {
-  const el = document.getElementById(id); if (!el) return;
-  el.classList.remove("shake"); void el.offsetWidth;
-  el.classList.add("shake"); setTimeout(() => el.classList.remove("shake"), 400);
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove("shake");
+  void el.offsetWidth; // reflow
+  el.classList.add("shake");
+  setTimeout(() => el.classList.remove("shake"), 400);
 }
 function toggleLoginPass() {
   const inp = document.getElementById("loginPass");
   const ico = document.getElementById("eyeIcon");
-  if (!inp || !ico) return;
   if (inp.type === "password") {
     inp.type = "text";
-    ico.innerHTML = "<path d=\"M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24\"/><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"/>";
+    ico.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
   } else {
     inp.type = "password";
-    ico.innerHTML = "<path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>";
+    ico.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
   }
 }
 
-// ── Init ──────────────────────────────────────────────
-initAccounts();
-const _sess = sessionStorage.getItem("chum_sess");
-if (_sess) {
-  try {
-    const s = JSON.parse(_sess);
-    curUser = s.u; curData = { role: s.role, pro: s.pro };
-    onLoginSuccess(s.u, curData);
-  } catch(e) {}
+// Check if already logged in this session
+if (sessionStorage.getItem("chum_user")) {
+  loginSuccess(sessionStorage.getItem("chum_user"));
 }
-
-// ══ GITHUB SYNC ══════════════════════════════════════
-const GH_CFG_KEY = "chum_gh_config";
-
-function getGhCfg() { return JSON.parse(localStorage.getItem(GH_CFG_KEY) || "null"); }
-function saveGhCfg(c) { localStorage.setItem(GH_CFG_KEY, JSON.stringify(c)); }
-
-// ── GitHub API helpers ────────────────────────────────
-async function ghFetch(method, cfg, body) {
-  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}`;
-  const res = await fetch(url, {
-    method,
-    headers: {
-      "Authorization": `Bearer ${cfg.token}`,
-      "Accept": "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "Content-Type": "application/json"
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  return res;
-}
-
-async function ghRead(cfg) {
-  const res = await ghFetch("GET", cfg);
-  if (!res.ok) throw new Error(`GitHub ${res.status}: ${res.statusText}`);
-  const data = await res.json();
-  const text = atob(data.content.replace(/\n/g, ""));
-  return { data: JSON.parse(text), sha: data.sha };
-}
-
-async function ghWrite(cfg, accounts, sha) {
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(accounts, null, 2))));
-  const body = {
-    message: `chum-ia: update accounts.json [${new Date().toISOString()}]`,
-    content,
-    sha
-  };
-  const res = await ghFetch("PUT", cfg, body);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `GitHub ${res.status}`);
-  }
-  return await res.json();
-}
-
-// ── Load accounts from GitHub ─────────────────────────
-async function ghLoadAccounts() {
-  const cfg = getGhCfg();
-  if (!cfg) return;
-  setGhStatus("loading", "Chargement depuis GitHub…");
-  try {
-    const { data, sha } = await ghRead(cfg);
-    if (typeof data !== "object") throw new Error("Format invalide");
-    saveAccts(data);
-    localStorage.setItem("chum_gh_sha", sha);
-    setGhStatus("ok", `Synchronisé avec ${cfg.owner}/${cfg.repo}`);
-  } catch(e) {
-    setGhStatus("err", "Erreur GitHub : " + e.message);
-  }
-}
-
-// ── Save accounts to GitHub ───────────────────────────
-async function ghSaveAccounts(accounts) {
-  const cfg = getGhCfg();
-  if (!cfg) return; // local only
-  setGhStatus("loading", "Sauvegarde sur GitHub…");
-  try {
-    let sha = localStorage.getItem("chum_gh_sha");
-    if (!sha) {
-      // First write — try to get current SHA
-      try { const r = await ghRead(cfg); sha = r.sha; } catch(e) {}
-    }
-    const result = await ghWrite(cfg, accounts, sha);
-    const newSha = result.content?.sha;
-    if (newSha) localStorage.setItem("chum_gh_sha", newSha);
-    setGhStatus("ok", `Sauvegardé sur ${cfg.owner}/${cfg.repo}`);
-  } catch(e) {
-    setGhStatus("err", "Erreur sauvegarde : " + e.message);
-  }
-}
-
-function setGhStatus(state, txt) {
-  const dot = document.getElementById("ghDot");
-  const bar = document.getElementById("ghBarTxt");
-  if (dot) dot.className = "gh-status-dot " + state;
-  if (bar) bar.textContent = txt;
-}
-
-// ── Config modal ──────────────────────────────────────
-function openGhModal() {
-  const cfg = getGhCfg();
-  if (cfg) {
-    document.getElementById("ghOwner").value = cfg.owner || "";
-    document.getElementById("ghRepo").value  = cfg.repo  || "";
-    document.getElementById("ghPath").value  = cfg.path  || "accounts.json";
-    // don't prefill token for security
-  }
-  document.getElementById("ghModalOverlay").classList.add("show");
-}
-function closeGhModal() { document.getElementById("ghModalOverlay").classList.remove("show"); }
-
-async function ghSaveConfig() {
-  const token = document.getElementById("ghToken").value.trim();
-  const owner = document.getElementById("ghOwner").value.trim();
-  const repo  = document.getElementById("ghRepo").value.trim();
-  const path  = document.getElementById("ghPath").value.trim() || "accounts.json";
-  const errEl = document.getElementById("ghErr");
-
-  if (!token) { errEl.textContent = "Token requis"; return; }
-  if (!owner) { errEl.textContent = "Propriétaire requis"; return; }
-  if (!repo)  { errEl.textContent = "Nom du repo requis"; return; }
-
-  const btn = document.querySelector(".gh-save-btn");
-  btn.textContent = "Test en cours…"; btn.disabled = true;
-
-  const cfg = { token, owner, repo, path };
-  try {
-    // Test: try to read the file (or create if not exists)
-    let sha = null;
-    try {
-      const r = await ghRead(cfg);
-      sha = r.sha;
-      // Merge imported accounts with local
-      const remote = r.data;
-      const local  = getAccts();
-      const merged = Object.assign({}, remote, local);
-      saveAccts(merged);
-      if (sha) localStorage.setItem("chum_gh_sha", sha);
-      errEl.style.color = "var(--green)";
-      errEl.textContent = "✓ Connexion réussie — " + Object.keys(r.data).length + " compte(s) importé(s)";
-    } catch(e) {
-      if (e.message.includes("404")) {
-        // File doesn't exist yet — create it
-        const local = getAccts();
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(local, null, 2))));
-        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-          method: "PUT",
-          headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" },
-          body: JSON.stringify({ message: "chum-ia: create accounts.json", content })
-        });
-        if (!res.ok) throw new Error((await res.json()).message || `HTTP ${res.status}`);
-        const rd = await res.json();
-        localStorage.setItem("chum_gh_sha", rd.content?.sha || "");
-        errEl.style.color = "var(--green)";
-        errEl.textContent = "✓ accounts.json créé dans votre repo !";
-      } else throw e;
-    }
-    saveGhCfg(cfg);
-    setGhStatus("ok", `Synchronisé avec ${owner}/${repo}`);
-    setTimeout(() => closeGhModal(), 1800);
-  } catch(e) {
-    errEl.style.color = "var(--red)";
-    errEl.textContent = "Erreur : " + e.message;
-  } finally {
-    btn.textContent = "Tester & Sauvegarder"; btn.disabled = false;
-  }
-}
-
-// ── Override saveAccts to also sync GitHub ────────────
-const _saveAcctsOrig = saveAccts;
-window.saveAccts = function(a) {
-  _saveAcctsOrig(a);
-  ghSaveAccounts(a); // async, non-bloquant
-};
-
-// ── Init: load from GitHub if configured ─────────────
-(async () => {
-  const cfg = getGhCfg();
-  if (cfg) {
-    setGhStatus("loading", `Connexion à ${cfg.owner}/${cfg.repo}…`);
-    await ghLoadAccounts();
-  }
-})();
-// ══ END GITHUB SYNC ═══════════════════════════════════
-
-// ══ END ACCOUNTS & LOGIN ═════════════════════════════
-
-
+// ══ END LOGIN ═════════════════════════════════════════
 
 
 // ══ PRO MODE ═════════════════════════════════════════
@@ -1846,7 +1492,7 @@ function activatePro() {
 // ════════════════════════════════════════════════════
 // 🔑 CLÉ API — inversée pour obfuscation
 // Console (F12) → "gsk_VOTRE_CLE".split("").reverse().join("")
-const API_KEY_REV = "8d1j9futv7NpdvPChQ6iheruYF3bydGW8VUGlUnnvQHrD5413JcE_ksg";
+const API_KEY_REV = "ICI_VOTRE_CLE_INVERSEE";
 const API_KEY = API_KEY_REV.split("").reverse().join("");
 // ════════════════════════════════════════════════════
 
@@ -2681,106 +2327,78 @@ document.addEventListener('keydown', e => {
 
 // ── Init TTS voices ───────────────────────────────────
 if (window.speechSynthesis) speechSynthesis.getVoices();
+
+function saveAccounts(){
+   localStorage.setItem("admin_accounts", JSON.stringify(_ACCOUNTS));
+}
+
+function renderAdminUsers(){
+   const box = document.getElementById("adminUsers");
+   if(!box) return;
+
+   box.innerHTML = "";
+
+   for(let user in _ACCOUNTS){
+
+      const row = document.createElement("div");
+      row.className = "s-row";
+
+      row.innerHTML = `
+        <div>
+          <div class="srl">${user}</div>
+          <div class="srd">${_ACCOUNTS[user].restricted ? "Restreint" : "Actif"}</div>
+        </div>
+
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+
+          <button class="tl-btn" onclick="adminPro('${user}')">⭐ PRO</button>
+
+          <button class="tl-btn" onclick="adminRestrict('${user}')">🚫</button>
+
+          ${
+            user !== "admin"
+            ? `<button class="tl-btn" onclick="adminDelete('${user}')">🗑</button>`
+            : ""
+          }
+
+        </div>
+      `;
+
+      box.appendChild(row);
+   }
+}
+
+function adminAddUser(){
+   const u = document.getElementById("newUser").value.trim().toLowerCase();
+   const p = document.getElementById("newPass").value.trim();
+
+   if(!u || !p) return alert("Champs requis");
+
+   _ACCOUNTS[u] = p.split("").reverse().join("");
+   saveAccounts();
+   renderAdminUsers();
+
+   document.getElementById("newUser").value="";
+   document.getElementById("newPass").value="";
+}
+
+function adminDelete(user){
+   if(confirm("Supprimer "+user+" ?")){
+      delete _ACCOUNTS[user];
+      saveAccounts();
+      renderAdminUsers();
+   }
+}
+
+function adminRestrict(user){
+   _ACCOUNTS[user] = {restricted:true};
+   saveAccounts();
+   renderAdminUsers();
+}
+
+function adminPro(user){
+   alert(user + " est maintenant PRO");
+}
 </script>
-
-<!-- ADMIN MODAL -->
-<div class="admin-overlay" id="adminOverlay" onclick="if(event.target===this)closeAdmin()">
-  <div class="admin-modal">
-    <div class="admin-hdr">
-      <div class="admin-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Panel <em>Admin</em>
-        <span class="admin-badge">Accès restreint</span>
-      </div>
-      <button class="admin-close" onclick="closeAdmin()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="gh-config-bar" id="ghBar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-      <div class="gh-status-dot" id="ghDot"></div>
-      <span id="ghBarTxt">GitHub non configuré — les comptes sont locaux</span>
-      <button class="gh-setup-btn" onclick="openGhModal()">Configurer</button>
-    </div>
-    <div class="admin-body">
-      <!-- Add account -->
-      <div class="admin-add-form">
-        <div class="admin-form-lbl">➕ Nouveau compte</div>
-        <div class="admin-form-row">
-          <input id="aNUser" class="admin-inp" type="text" placeholder="Identifiant…" maxlength="32" oninput="aClearErr()"/>
-          <input id="aNPass" class="admin-inp" type="password" placeholder="Mot de passe…" maxlength="64" oninput="aClearErr()"/>
-          <label class="admin-pro-tog">
-            <label class="tog" style="width:34px;height:19px"><input type="checkbox" id="aNPro"/><span class="tog-sl"></span></label>
-            PRO
-          </label>
-          <button class="admin-add-btn" id="aAddBtn" onclick="aAddAccount()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Ajouter
-          </button>
-        </div>
-        <div class="admin-form-err" id="aErr"></div>
-      </div>
-      <!-- List -->
-      <div>
-        <div class="admin-list-hdr">
-          <span class="admin-section-lbl">Comptes (<span id="aCount">0</span>)</span>
-          <div class="admin-btns">
-            <button class="admin-sm-btn" onclick="aExport()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Exporter JSON
-            </button>
-            <label class="admin-sm-btn" style="cursor:pointer">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Importer JSON
-              <input type="file" accept=".json" style="display:none" onchange="aImport(this)"/>
-            </label>
-          </div>
-        </div>
-        <div style="height:8px"></div>
-        <div class="admin-table" id="aTable"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- GITHUB CONFIG MODAL -->
-<div class="gh-modal-overlay" id="ghModalOverlay" onclick="if(event.target===this)closeGhModal()">
-  <div class="gh-modal">
-    <h3>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-      Sync <em>GitHub</em>
-    </h3>
-    <p>Connectez votre dépôt GitHub pour lire et écrire <code style="color:var(--yellow);font-family:var(--mono)">accounts.json</code> directement dans le repo.</p>
-    <div class="gh-note">
-      <strong style="color:var(--text)">Étapes :</strong><br>
-      1. Allez sur <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
-      2. Générez un <strong>Fine-grained token</strong> avec accès <code>Contents: Read & Write</code> sur votre repo<br>
-      3. Collez le token et les infos du repo ci-dessous
-    </div>
-    <div class="gh-field">
-      <label>Token GitHub (ghp_… ou github_pat_…)</label>
-      <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
-    </div>
-    <div class="gh-field">
-      <label>Propriétaire du repo (username)</label>
-      <input id="ghOwner" type="text" placeholder="mon-username"/>
-    </div>
-    <div class="gh-field">
-      <label>Nom du repo</label>
-      <input id="ghRepo" type="text" placeholder="mon-site"/>
-    </div>
-    <div class="gh-field">
-      <label>Chemin du fichier (défaut : accounts.json)</label>
-      <input id="ghPath" type="text" placeholder="accounts.json" value="accounts.json"/>
-    </div>
-    <div class="gh-err" id="ghErr"></div>
-    <div class="gh-modal-btns">
-      <button class="gh-cancel-btn" onclick="closeGhModal()">Annuler</button>
-      <button class="gh-save-btn" onclick="ghSaveConfig()">Tester & Sauvegarder</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
